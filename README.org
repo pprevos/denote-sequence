@@ -72,15 +72,10 @@ modify this GNU manual.”
 
 [ The =denote-sequence.el= is part of {{{development-version}}}. ]
 
-This section is about the optional extension =denote-sequence.el=,
-which is part of the ~denote~ package. Its commands are autoloaded, so
-they are avaialble in the =M-x= interface at the outset and will load
-their file when they are invoked. Though users can explicitly load
-the file on demand with:
-
-#+begin_src emacs-lisp
-(require 'denote-sequence)
-#+end_src
+The ~denote-sequence~ package provides an optional extension to
+~denote~ for naming files with a sequencing scheme. The idea is to
+establish hiearchical relationships between files, such that the
+contents of one logically follow or complement those of another.
 
 Denote defines an optional file name component called the =SIGNATURE=
 (read about the file-naming scheme in the Denote manual). This is a
