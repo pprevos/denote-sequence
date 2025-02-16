@@ -10,7 +10,7 @@
 #+export_file_name: denote-sequence.texi
 #+texinfo_filename: denote-sequence.info
 #+texinfo_dir_category: Emacs misc features
-#+texinfo_dir_title: Denote: (denote)
+#+texinfo_dir_title: Denote Sequence: (denote-sequence)
 #+texinfo_dir_desc: Sequence notes or Folgezettel with Denote
 #+texinfo_header: @set MAINTAINERSITE @uref{https://protesilaos.com,maintainer webpage}
 #+texinfo_header: @set MAINTAINER Protesilaos Stavrou
