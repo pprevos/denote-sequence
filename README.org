@@ -19,9 +19,6 @@
 
 #+texinfo: @insertcopying
 
-WORK-IN-PROGRESS. Not all links may work and I will update things as
-part of {{{development-version}}}.
-
 This manual, written by Protesilaos Stavrou, describes the customization
 options for the Emacs package called ~denote~ (or =denote.el=), and
 provides every other piece of information pertinent to it.
