@@ -336,7 +336,7 @@ The implied check here has the same meaning as described in
 (defun denote-sequence--infer-child (sequence)
   "Get likely child of SEQUENCE.
 Do not actually try to create a new child, as that is the duty of
-`denote-sequence--get-new-child').  Instead return a greater level of
+`denote-sequence--get-new-child'.  Instead return a greater level of
 depth given SEQUENCE."
   (pcase-let* ((`(,sequence . ,scheme) (denote-sequence-and-scheme-p sequence))
                (components (denote-sequence-split sequence))
