@@ -143,6 +143,10 @@ of numbers or letters.
 
 Produce an error if the sequencing scheme cannot be established."
   (cond
+   ((and (not partial)
+         (not (string-match-p "[[:alpha:]]" sequence))
+         (eq denote-sequence-scheme 'numeric))
+    (cons sequence 'numeric))
    ((or (and partial (denote-sequence--alphanumeric-partial-p sequence))
         (denote-sequence-alphanumeric-p sequence))
     (cons sequence 'alphanumeric))
