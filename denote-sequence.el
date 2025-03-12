@@ -320,7 +320,7 @@ This does not actually check if there are children in the variable
 `denote-directory', but only that SEQUENCE is greater than 1."
   (> (denote-sequence-depth sequence) 1))
 
-(defun denote-sequence--get-parent (sequence)
+(defun denote-sequence--infer-parent (sequence)
   "Return implied parent of SEQUENCE, else nil.
 Produce an error if SEQUENCE does not conform with `denote-sequence-p'.
 The implied check here has the same meaning as described in
