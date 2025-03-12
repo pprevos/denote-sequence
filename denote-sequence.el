@@ -333,6 +333,22 @@ The implied check here has the same meaning as described in
                        (butlast))))
         (denote-sequence-join strings scheme)))))
 
+(defun denote-sequence--infer-child (sequence)
+  "Get likely child of SEQUENCE.
+Do not actually try to create a new child, as that is the duty of
+`denote-sequence--get-new-child').  Instead return a greater level of
+depth given SEQUENCE."
+  (pcase-let* ((`(,sequence . ,scheme) (denote-sequence-and-scheme-p sequence))
+               (components (denote-sequence-split sequence))
+               (butlast (butlast components))
+               (last-component (car (nreverse components)))
+               (new-depth (cond
+                           ((eq scheme 'numeric) "1")
+                           ((denote-sequence--numeric-partial-p last-component) "a")
+                           ((denote-sequence--alphanumeric-partial-p last-component) "1")
+                           (t (error "Unknown type of sequence for `%s'" last-component)))))
+    (denote-sequence-join (list sequence new-depth) scheme)))
+
 (defun denote-sequence--get-files (&optional files)
   "Return list of files or buffers in the variable `denote-directory'.
 With optional FILES only consider those, otherwise use `denote-directory-files'."
