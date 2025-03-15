@@ -67,8 +67,6 @@ modify this GNU manual.”
 :ALT_TITLE: Sequence notes
 :END:
 
-[ The =denote-sequence.el= is part of {{{development-version}}}. ]
-
 The ~denote-sequence~ package provides an optional extension to
 ~denote~ for naming files with a sequencing scheme. The idea is to
 establish hiearchical relationships between files, such that the
@@ -108,8 +106,6 @@ manually. The purpose of this extension is to streamline this work.
 :CUSTOM_ID: h:select-a-sequencing-scheme-for-denote-sequence-scheme
 :END:
 
-[ The =denote-sequence.el= is part of {{{development-version}}}. ]
-
 #+vindex: denote-sequence-scheme
 The user option ~denote-sequence-scheme~ allows users to select either
 the =numeric= scheme, which is like ~1=1=2~ or the =alphanumeric=
@@ -138,8 +134,6 @@ scheme, which is =1a2= for the same sequence ([[#h:convert-from-one-sequencing-s
 :CUSTOM_ID: h:convert-from-one-sequencing-scheme-to-another
 :END:
 
-[ The =denote-sequence.el= is part of {{{development-version}}}. ]
-
 The decision on the desired ~denote-sequence-scheme~ wil affect new
 notes long-term ([[#h:select-a-sequencing-scheme-for-denote-sequence-scheme][Select a sequencing scheme for ~denote-sequence-scheme~]]).
 It thus is important to think through your needs and proceed accordingly.
@@ -162,8 +156,6 @@ THE RESULTING SEQUENCES FOR DUPLICATES ([[#h:re-parent-a-file-to-extend-a-given-
 :PROPERTIES:
 :CUSTOM_ID: h:create-parent-child-or-sibling-sequence-notes
 :END:
-
-[ The =denote-sequence.el= is part of {{{development-version}}}. ]
 
 [ In the interest of simplicity, here we provide examples using the
   =numeric= value of ~denote-sequence-scheme~, though the =alphanumeric=
@@ -218,8 +210,6 @@ Concretely, we provide the following commands:
 :CUSTOM_ID: h:find-a-relative-of-the-current-sequence
 :END:
 
-[ The =denote-sequence.el= is part of {{{development-version}}}. ]
-
 #+findex: denote-sequence-find
 While reading a file with a sequence, you may want to find what its
 relatives are about. To this end, the command ~denote-sequence-find~
@@ -236,8 +226,6 @@ puts all the matching files in a bespoke Dired buffer ([[#h:show-all-or-some-seq
 :CUSTOM_ID: h:link-only-to-sequences
 :END:
 
-[ The =denote-sequence.el= is part of {{{development-version}}}. ]
-
 #+findex: denote-sequence-link
 The command ~denote-sequence-link~ is a variant of the standard
 ~denote-link~ command which limits the list of files only to those
@@ -252,8 +240,6 @@ which contain a sequence as their file name =SIGNATURE= ([[#h:write-sequence-not
 :CUSTOM_ID: h:re-parent-a-file-to-extend-a-given-sequence
 :END:
 
-[ The =denote-sequence.el= is part of {{{development-version}}}. ]
-
 #+findex: denote-sequence-reparent
 The command ~denote-sequence-reparent~ can be used from inside a file
 or for the file-at-point in Dired to make that file a child of a given
@@ -265,8 +251,6 @@ contain a sequence as their file name =SIGNATURE= ([[#h:write-sequence-notes-or-
 :PROPERTIES:
 :CUSTOM_ID: h:show-all-or-some-sequences-in-a-dired-buffer
 :END:
-
-[ The =denote-sequence.el= is part of {{{development-version}}}. ]
 
 [ In the interest of simplicity, here we provide examples using the
   =numeric= value of ~denote-sequence-scheme~, though the =alphanumeric=
