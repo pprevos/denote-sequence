@@ -61,6 +61,7 @@
 (defgroup denote-sequence ()
   "Sequence notes or Folgezettel with Denote."
   :group 'denote
+  :link '(info-link "(denote) top")
   :link '(info-link "(denote-sequence) top")
   :link '(url-link :tag "Denote homepage" "https://protesilaos.com/emacs/denote")
   :link '(url-link :tag "Denote Sequence homepage" "https://protesilaos.com/emacs/denote-sequence"))
