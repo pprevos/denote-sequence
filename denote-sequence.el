@@ -353,7 +353,10 @@ depth given SEQUENCE."
 (defun denote-sequence--get-files (&optional files)
   "Return list of files or buffers in the variable `denote-directory'.
 With optional FILES only consider those, otherwise use `denote-directory-files'."
-  (delete-dups (append (denote--buffer-file-names) (or files (denote-directory-files)))))
+  (let* ((denote-directory (or denote-use-directory (denote-directory)))
+         (files (denote-directory-files))
+         (buffers (denote--buffer-file-names)))
+    (delete-dups (append buffers files))))
 
 (defun denote-sequence-get-all-files (&optional files)
   "Return all files in variable `denote-directory' with a sequence.
