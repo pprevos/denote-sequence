@@ -110,6 +110,13 @@ zx (z is 26 and x is 25)."
              (not (string-match-p "=" sequence)))
     sequence))
 
+(defun denote-sequence-user-selected-scheme-p (sequence)
+  "Return SEQUENCE if it is consistent with `denote-sequence-scheme'.
+Also see `denote-sequence-alphanumeric-p' and `denote-sequence-numeric-p'."
+  (pcase denote-sequence-scheme
+    ('numeric (denote-sequence-numeric-p sequence))
+    ('alphanumeric (denote-sequence-alphanumeric-p sequence))))
+
 (defun denote-sequence-p (sequence)
   "Return SEQUENCE string is of a supported scheme.
 Also see `denote-sequence-numeric-p' and `denote-sequence-alphanumeric-p'."
