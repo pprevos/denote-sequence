@@ -381,14 +381,15 @@ PREFIX is a list of strings containing the components of the prefix
 sequence, as is returned by `denote-sequence-split'.
 
 If PREFIX is nil, return non-nil as if the SEQUENCE has PREFIX."
-  (let ((value (denote-sequence-split sequence))
-        (depth (length prefix))
-        (matched 0))
-    (while (and value
-                (< matched depth)
-                (string-equal (pop value) (nth matched prefix)))
-      (setq matched (1+ matched)))
-    (= matched depth)))
+  (when (denote-sequence-user-selected-scheme-p sequence)
+    (let ((value (denote-sequence-split sequence))
+          (depth (length prefix))
+          (matched 0))
+      (while (and value
+                  (< matched depth)
+                  (string-equal (pop value) (nth matched prefix)))
+        (setq matched (1+ matched)))
+      (= matched depth))))
 
 (defun denote-sequence-get-all-files-with-prefix (sequence &optional files)
   "Return all files in variable `denote-directory' with prefix SEQUENCE.
