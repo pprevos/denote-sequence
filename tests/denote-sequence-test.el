@@ -1,4 +1,4 @@
-;;; denote-test.el --- Unit tests for denote-sequence.el -*- lexical-binding: t -*-
+;;; denote-sequence-test.el --- Unit tests for denote-sequence.el -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2023-2025  Free Software Foundation, Inc.
 
@@ -49,7 +49,7 @@ Use the function `denote-sequence-get-new' for child and sibling with
 the numeric and alphanumeric `denote-sequence-scheme', as well as the
 function `denote-sequence-get-relative'."
   (let* ((denote-sequence-scheme 'numeric)
-         (denote-directory (expand-file-name "denote-test" temporary-file-directory))
+         (denote-directory (expand-file-name "denote-sequence-test" temporary-file-directory))
          (files
           (mapcar
            (lambda (file)
@@ -129,7 +129,7 @@ function `denote-sequence-get-relative'."
                             "20241230T075023==1=1=2--test__testing.txt")))
 
   (let* ((denote-sequence-scheme 'alphanumeric)
-         (denote-directory (expand-file-name "denote-test" temporary-file-directory))
+         (denote-directory (expand-file-name "denote-sequence-test" temporary-file-directory))
          (files
           (mapcar
            (lambda (file)
@@ -234,8 +234,8 @@ function `denote-sequence-get-relative'."
   (should (string= (denote-sequence-increment "10") "11"))
   (should-error (denote-sequence-increment "1=a")))
 
-(provide 'denote-test)
-;;; denote-test.el ends here
+(provide 'denote-sequence-test)
+;;; denote-sequence-test.el ends here
 
 ;; Local Variables:
 ;; read-symbol-shorthands: (("dst" . "denote-sequence-test-"))
