@@ -314,6 +314,34 @@ STRING is part of a sequence, not the entirety of it."
           (apply #'concat
                  (append (butlast letters)
                          (list (char-to-string (+ (string-to-char last) 1))))))))))
+
+(defun denote-sequence-decrement (string)
+  "Decrement number represented by STRING and return it as a string.
+STRING is part of a sequence, not the entirety of it.
+
+Also see `denote-sequence-increment'."
+  (cond
+   ((denote-sequence--numeric-partial-p string)
+    (let ((number (string-to-number string)))
+      (unless (= number 1)
+        (number-to-string (- number 1)))))
+   ((denote-sequence--alphanumeric-partial-p string)
+    (let* ((letters (split-string string "" :omit-nulls))
+           (length-1-p (= (length letters) 1))
+           (first (car letters))
+           (reverse (nreverse (copy-sequence letters)))
+           (last (car reverse)))
+      (cond
+       ((and length-1-p (string= "a" first))
+        nil)
+       (length-1-p
+        (char-to-string (- (string-to-char first) 1)))
+       ((string= "a" last)
+        (apply #'concat (butlast letters)))
+       (t
+        (apply #'concat
+               (append (butlast letters)
+                       (list (char-to-string (- (string-to-char last) 1)))))))))
    (t
     (error "The string `%s' must contain only numbers or letters" string))))
 
