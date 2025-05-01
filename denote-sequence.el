@@ -880,6 +880,26 @@ If the current file does not have a sequence, then behave exactly like
          (denote-use-signature new-sequence))
     (call-interactively 'denote)))
 
+;;;###autoload
+(defun denote-sequence-find-next-sibling (sequence)
+  "Visit the next sibling of file with SEQUENCE."
+  (interactive (list (denote-sequence--get-file-in-dired-or-prompt "Make a new sibling of SEQUENCE")))
+  (if-let* ((relatives (denote-sequence-get-relative sequence 'siblings))
+            (next-sequence (denote-sequence--infer-sibling sequence 'next))
+            (path (denote-sequence-get-path next-sequence relatives)))
+      (find-file path)
+    (user-error "No next sibling for sequence `%s'" sequence)))
+
+;;;###autoload
+(defun denote-sequence-find-previous-sibling (sequence)
+  "Visit the previous sibling of file with SEQUENCE."
+  (interactive (list (denote-sequence--get-file-in-dired-or-prompt "Make a new sibling of SEQUENCE")))
+  (if-let* ((relatives (denote-sequence-get-relative sequence 'siblings))
+            (previous-sequence (denote-sequence--infer-sibling sequence 'previous))
+            (path (denote-sequence-get-path previous-sequence relatives)))
+      (find-file path)
+    (user-error "No previous sibling for sequence `%s'" sequence)))
+
 (defvar denote-sequence-relative-types
   '(all-parents parent siblings children all-children)
   "Types of sequence relatives.")
