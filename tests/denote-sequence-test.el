@@ -245,6 +245,20 @@ function `denote-sequence-get-relative'."
   (should (string= (denote-sequence-decrement-partial "bbcza") "bbcz"))
   (should-error (denote-sequence-decrement-partial "1a")))
 
+(ert-deftest dst-denote-sequence--infer-sibling ()
+  "Test that `denote-sequence--infer-sibling' returns the correct result."
+  (should (string= (denote-sequence--infer-sibling "1" 'next) "2"))
+  (should (string= (denote-sequence--infer-sibling "1a" 'next) "1b"))
+  (should (string= (denote-sequence--infer-sibling "1z" 'next) "1za"))
+  (should (string= (denote-sequence--infer-sibling "1=1" 'next) "1=2"))
+  (should (string= (denote-sequence--infer-sibling "2" 'previous) "1"))
+  (should (string= (denote-sequence--infer-sibling "1b" 'previous) "1a"))
+  (should (string= (denote-sequence--infer-sibling "1za" 'previous) "1z"))
+  (should (string= (denote-sequence--infer-sibling "1=2" 'previous) "1=1"))
+  (should (null (denote-sequence--infer-sibling "1" 'previous)))
+  (should (null (denote-sequence--infer-sibling "1=1" 'previous)))
+  (should (null (denote-sequence--infer-sibling "1a" 'previous))))
+
 (provide 'denote-sequence-test)
 ;;; denote-sequence-test.el ends here
 

@@ -393,6 +393,23 @@ depth given SEQUENCE."
                            (t (error "Unknown type of sequence for `%s'" last-component)))))
     (denote-sequence-join (list sequence new-depth) scheme)))
 
+(defun denote-sequence--infer-sibling (sequence direction)
+  "Get sibling of SEQUENCE in DIRECTION `next' or `previous'.
+Do not actually try to create a new sibling nor to test for the
+existence of one.  Simply do the work of finding the next or previous
+sibling in the sequence."
+  (pcase-let* ((`(,sequence . ,scheme) (denote-sequence-and-scheme-p sequence))
+               (components (denote-sequence-split sequence))
+               (butlast (butlast components))
+               (last-component (car (nreverse components)))
+               (direction-fn (pcase direction
+                               ('next #'denote-sequence-increment-partial)
+                               ('previous #'denote-sequence-decrement-partial)
+                               (_ (error "Unknown DIRECTION `%s'" direction))))
+               (new-number (funcall direction-fn last-component)))
+    (when new-number
+      (denote-sequence-join (append butlast (list new-number)) scheme))))
+
 (defun denote-sequence--get-files (&optional files)
   "Return list of files or buffers in the variable `denote-directory'.
 With optional FILES only consider those, otherwise use `denote-directory-files'."
