@@ -34,24 +34,6 @@
 (require 'ert)
 (require 'denote-sequence)
 
-(ert-deftest dst-denote-sequence-increment ()
-  "Test that `denote-sequence-increment' does the right thing."
-  (should (equal (denote-sequence-increment "1") "2"))
-  (should (equal (denote-sequence-increment "a") "b"))
-  (should (equal (denote-sequence-increment "z") "za"))
-  (should (equal (denote-sequence-increment "zz") "zza"))
-  (should-error (denote-sequence-increment "1a")))
-
-(ert-deftest dst-denote-sequence-decrement ()
-  "Test that `denote-sequence-decrement' does the right thing."
-  (should (null (denote-sequence-decrement "1")))
-  (should (null (denote-sequence-decrement "a")))
-  (should (equal (denote-sequence-decrement "2") "1"))
-  (should (equal (denote-sequence-decrement "b") "a"))
-  (should (equal (denote-sequence-decrement "za") "z"))
-  (should (equal (denote-sequence-decrement "zza") "zz"))
-  (should-error (denote-sequence-decrement "1a")))
-
 (defun dst-relative-p (sequence type &rest files)
   "Return non-nil if FILES are relatives of SEQUENCE given TYPE."
   (when-let* ((relatives (denote-sequence-get-relative sequence type files))
@@ -242,15 +224,26 @@ function `denote-sequence-get-relative'."
   (should-error (denote-sequence-make-conversion "111=a" :string-is-sequence))
   (should-error (denote-sequence-make-conversion "a1" :string-is-sequence)))
 
-(ert-deftest dst-denote-sequence-increment ()
-  "Test that `denote-sequence-increment' works with numbers and letters."
-  (should (string= (denote-sequence-increment "z") "za"))
-  (should (string= (denote-sequence-increment "ab") "ac"))
-  (should (string= (denote-sequence-increment "az") "aza"))
-  (should (string= (denote-sequence-increment "bbcz") "bbcza"))
-  (should (string= (denote-sequence-increment "1") "2"))
-  (should (string= (denote-sequence-increment "10") "11"))
-  (should-error (denote-sequence-increment "1=a")))
+(ert-deftest dst-denote-sequence-increment-partial ()
+  "Test that `denote-sequence-increment-partial' does the right thing."
+  (should (string= (denote-sequence-increment-partial "1") "2"))
+  (should (string= (denote-sequence-increment-partial "a") "b"))
+  (should (string= (denote-sequence-increment-partial "z") "za"))
+  (should (string= (denote-sequence-increment-partial "zz") "zza"))
+  (should (string= (denote-sequence-increment-partial "bbcz") "bbcza"))
+  (should-error (denote-sequence-increment-partial "1=1"))
+  (should-error (denote-sequence-increment-partial "1a")))
+
+(ert-deftest dst-denote-sequence-decrement-partial ()
+  "Test that `denote-sequence-decrement-partial' does the right thing."
+  (should (null (denote-sequence-decrement-partial "1")))
+  (should (null (denote-sequence-decrement-partial "a")))
+  (should (string= (denote-sequence-decrement-partial "2") "1"))
+  (should (string= (denote-sequence-decrement-partial "b") "a"))
+  (should (string= (denote-sequence-decrement-partial "za") "z"))
+  (should (string= (denote-sequence-decrement-partial "zza") "zz"))
+  (should (string= (denote-sequence-decrement-partial "bbcza") "bbcz"))
+  (should-error (denote-sequence-decrement-partial "1a")))
 
 (provide 'denote-sequence-test)
 ;;; denote-sequence-test.el ends here
