@@ -426,6 +426,26 @@ With optional FILES consider only those, otherwise use the return value
 of `denote-directory-files'."
   (seq-filter #'denote-sequence-file-p (denote-sequence--get-files files)))
 
+(defun denote-sequence-get-path (sequence &optional files)
+  "Return absolute path of file with SEQUENCE.
+Search in the return value of `denote-sequence-get-all-files' or in FILES."
+  (let ((files
+         (seq-filter
+          (lambda (file)
+            (string= sequence (denote-retrieve-filename-signature file)))
+          (denote-sequence-get-all-files files))))
+    (if (length< files 2)
+        (car files)
+      (seq-find
+       (lambda (file)
+         (let ((file-extension (denote-get-file-extension-sans-encryption file)))
+           (and (denote-file-has-supported-extension-p file)
+                (or (string= (denote--file-extension denote-file-type)
+                             file-extension)
+                    (string= ".org" file-extension)
+                    (member file-extension (denote-file-type-extensions))))))
+       files))))
+
 (defun denote-sequence--sequence-prefix-p (prefix sequence)
   "Return non-nil if SEQUENCE has prefix sequence PREFIX.
 
