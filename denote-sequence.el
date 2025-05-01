@@ -290,6 +290,11 @@ which case convert the entirety of it.  Also see `denote-sequence-scheme'."
         (error "String `%s' did not pass `denote-sequence-p'" string)
       (error "The `%s' must not contain both numbers and letters" string)))))
 
+(define-obsolete-function-alias
+  'denote-sequence-increment
+  'denote-sequence-increment-partial
+  "0.2.0")
+
 (defun denote-sequence-increment-partial (string)
   "Increment number represented by STRING and return it as a string.
 STRING is part of a sequence, not the entirety of it.
