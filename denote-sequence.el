@@ -713,7 +713,7 @@ completion candidates.  Else use `denote-sequence-get-all-files'."
                     (denote--completion-table 'file relative-files)
                     nil :require-match
                     nil 'denote-sequence-file-history)))
-      (concat (denote-directory) input)
+      (expand-file-name input (denote-directory))
     (error "There are no sequence notes in the `denote-directory'")))
 
 ;;;###autoload
