@@ -290,11 +290,11 @@ which case convert the entirety of it.  Also see `denote-sequence-scheme'."
         (error "String `%s' did not pass `denote-sequence-p'" string)
       (error "The `%s' must not contain both numbers and letters" string)))))
 
-(defun denote-sequence-increment (string)
+(defun denote-sequence-increment-partial (string)
   "Increment number represented by STRING and return it as a string.
 STRING is part of a sequence, not the entirety of it.
 
-Also see `denote-sequence-decrement'."
+Also see `denote-sequence-decrement-partial'."
   (cond
    ((denote-sequence--numeric-partial-p string)
     (number-to-string (+ (string-to-number string) 1)))
@@ -318,11 +318,11 @@ Also see `denote-sequence-decrement'."
    (t
     (error "The string `%s' must contain only numbers or letters" string))))
 
-(defun denote-sequence-decrement (string)
+(defun denote-sequence-decrement-partial (string)
   "Decrement number represented by STRING and return it as a string.
 STRING is part of a sequence, not the entirety of it.
 
-Also see `denote-sequence-increment'."
+Also see `denote-sequence-increment-partial'."
   (cond
    ((denote-sequence--numeric-partial-p string)
     (let ((number (string-to-number string)))
@@ -599,7 +599,7 @@ function `denote-sequence-get-all-sequences-with-prefix'."
                              (components (denote-sequence-split largest))
                              (butlast (butlast components))
                              (last-component (car (nreverse components)))
-                             (new-number (denote-sequence-increment last-component)))
+                             (new-number (denote-sequence-increment-partial last-component)))
                   (denote-sequence-join
                    (if butlast
                        (append butlast (list new-number))
@@ -637,7 +637,7 @@ function `denote-sequence-get-all-sequences-with-prefix'."
                          (components (denote-sequence-split largest))
                          (butlast (butlast components))
                          (last-component (car (nreverse components)))
-                         (new-number (denote-sequence-increment last-component)))
+                         (new-number (denote-sequence-increment-partial last-component)))
               (denote-sequence-join (append butlast (list new-number)) scheme))
           (number-to-string (+ (string-to-number largest) 1)))
       (error "Cannot find sequences given sequence `%s' using scheme `%s'" sequence denote-sequence-scheme))))
