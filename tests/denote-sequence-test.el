@@ -34,6 +34,24 @@
 (require 'ert)
 (require 'denote-sequence)
 
+(ert-deftest dst-denote-sequence-increment ()
+  "Test that `denote-sequence-increment' does the right thing."
+  (should (equal (denote-sequence-increment "1") "2"))
+  (should (equal (denote-sequence-increment "a") "b"))
+  (should (equal (denote-sequence-increment "z") "za"))
+  (should (equal (denote-sequence-increment "zz") "zza"))
+  (should-error (denote-sequence-increment "1a")))
+
+(ert-deftest dst-denote-sequence-decrement ()
+  "Test that `denote-sequence-decrement' does the right thing."
+  (should (null (denote-sequence-decrement "1")))
+  (should (null (denote-sequence-decrement "a")))
+  (should (equal (denote-sequence-decrement "2") "1"))
+  (should (equal (denote-sequence-decrement "b") "a"))
+  (should (equal (denote-sequence-decrement "za") "z"))
+  (should (equal (denote-sequence-decrement "zza") "zz"))
+  (should-error (denote-sequence-decrement "1a")))
+
 (defun dst-relative-p (sequence type &rest files)
   "Return non-nil if FILES are relatives of SEQUENCE given TYPE."
   (when-let* ((relatives (denote-sequence-get-relative sequence type files))
