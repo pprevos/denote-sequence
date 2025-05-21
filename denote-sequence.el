@@ -1107,6 +1107,25 @@ the target sequence."
     (denote-rename-file current-file 'keep-current 'keep-current new-sequence 'keep-current)))
 
 ;;;###autoload
+(defun denote-sequence-rename-as-parent (current-file)
+  "Make CURRENT-FILE a new parent sequence.
+If CURRENT-FILE has a sequence abort the operation.
+
+When called interactively, CURRENT-FILE is either the current file, or a
+special Org buffer (like those of `org-capture'), or the file at point
+in Dired.  When called from Lisp, CURRENT-FILE is a string pointing to a
+file."
+  (interactive
+   (list
+    (if (denote--file-type-org-extra-p)
+        denote-last-path-after-rename
+      (denote--rename-dired-file-or-current-file-or-prompt))))
+  (when (denote-sequence-file-p current-file)
+    (user-error "The `%s' already has a sequence; aborting" current-file))
+  (let ((new-sequence (denote-sequence--get-new-parent)))
+    (denote-rename-file current-file 'keep-current 'keep-current new-sequence 'keep-current)))
+
+;;;###autoload
 (defun denote-sequence-convert (files)
   "Convert the sequence scheme of FILES to match `denote-sequence-scheme'.
 When called from inside a Denote file, FILES is just the current file.
