@@ -418,6 +418,8 @@ With optional FILES only consider those, otherwise use `denote-directory-files'.
          (buffers (denote--buffer-file-names)))
     (delete-dups (append buffers files))))
 
+;; TODO 2025-06-23: Return cons cells with sequences and files.  This
+;; is to be able to do an `alist-get' to get a path given a sequence.
 (defun denote-sequence-get-all-files (&optional files)
   "Return all files in variable `denote-directory' with a sequence.
 A sequence is a Denote signature that conforms with `denote-sequence-p'.
