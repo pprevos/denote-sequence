@@ -1105,7 +1105,7 @@ the target sequence."
                               (denote-sequence-p file-with-sequence)
                               (user-error "No sequence of `denote-sequence-p' found in `%s'" file-with-sequence)))
          (new-sequence (denote-sequence--get-new-child target-sequence)))
-    (denote-rename-file current-file 'keep-current 'keep-current new-sequence 'keep-current)))
+    (denote-rename-file current-file 'keep-current 'keep-current new-sequence 'keep-current 'keep-current)))
 
 ;;;###autoload
 (defun denote-sequence-rename-as-parent (current-file)
@@ -1120,7 +1120,7 @@ file."
   (when (denote-sequence-file-p current-file)
     (user-error "The `%s' already has a sequence; aborting" current-file))
   (let ((new-sequence (denote-sequence--get-new-parent)))
-    (denote-rename-file current-file 'keep-current 'keep-current new-sequence 'keep-current)))
+    (denote-rename-file current-file 'keep-current 'keep-current new-sequence 'keep-current 'keep-current)))
 
 ;;;###autoload
 (defun denote-sequence-convert (files)
@@ -1147,7 +1147,7 @@ CHECK THE RESULTING SEQUENCES FOR DUPLICATES."
   (dolist (file files)
     (when-let* ((old-sequence (denote-sequence-file-p file))
                 (new-sequence (denote-sequence-make-conversion old-sequence :is-complete-sequence)))
-      (denote-rename-file file 'keep-current 'keep-current new-sequence 'keep-current)))
+      (denote-rename-file file 'keep-current 'keep-current new-sequence 'keep-current 'keep-current)))
   (denote-update-dired-buffers))
 
 (provide 'denote-sequence)
