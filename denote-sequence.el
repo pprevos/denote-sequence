@@ -1025,37 +1025,27 @@ For a more specialised case, see `denote-sequence-find-relatives-dired'."
         (denote-sequence-prompt "Limit to files that extend SEQUENCE (empty for all)")))
       (t
        nil))))
-  (let ((single-dir-p (denote-has-single-denote-directory-p)))
-    (if-let* ((default-directory (if single-dir-p
-                                     (car (denote-directories))
-                                   (denote-sort-dired--find-common-directory (denote-directories))))
-              (all (if prefix
-                       (denote-sequence-get-all-files-with-prefix prefix)
-                     (denote-sequence-get-all-files)))
-              (files-with-depth (if depth
-                                    (denote-sequence-get-all-files-with-max-depth depth all)
-                                  all))
-              (files-sorted (denote-sequence-sort-files files-with-depth)))
-        (let ((dired-buffer (dired (cons default-directory (if single-dir-p (mapcar #'file-relative-name files-sorted) files-sorted))))
-              (buffer-name (denote-sequence--get-dired-buffer-name prefix depth)))
-          (with-current-buffer dired-buffer
-            (rename-buffer buffer-name :unique)
-            (setq-local revert-buffer-function
-                        (lambda (&rest _)
-                          (if-let* ((default-directory (if single-dir-p
-                                                           (car (denote-directories))
-                                                         (denote-sort-dired--find-common-directory (denote-directories))))
-                                    (all (if prefix
-                                             (denote-sequence-get-all-files-with-prefix prefix)
-                                           (denote-sequence-get-all-files)))
-                                    (files-with-depth (if depth
-                                                          (denote-sequence-get-all-files-with-max-depth depth all)
-                                                        all))
-                                    (files-sorted (denote-sequence-sort-files files-with-depth)))
-                              (setq-local dired-directory (cons default-directory (if single-dir-p (mapcar #'file-relative-name files-sorted) files-sorted))))
-                          (dired-revert)))
-            (revert-buffer)))
-      (message "No Denote sequences matching those terms"))))
+  (pcase-let* ((relative-p (denote-has-single-denote-directory-p))
+               (files-fn
+                (lambda ()
+                  (let* ((files (if prefix
+                                    (denote-sequence-get-all-files-with-prefix prefix)
+                                  (denote-sequence-get-all-files)))
+                         (files-with-depth (if depth
+                                               (denote-sequence-get-all-files-with-max-depth depth files)
+                                             files))
+                         (files-sorted (denote-sequence-sort-files files-with-depth)))
+                    (if relative-p
+                        (mapcar #'file-relative-name files-sorted)
+                      files-sorted)))))
+    (if-let* ((directory (if relative-p ; see comment in `denote-file-prompt'
+                             (car (denote-directories))
+                           (denote-sort-dired--find-common-directory (denote-directories))))
+              (files (funcall files-fn))
+              (dired-name (format-message "prefix `%s'; depth `%s'" (or prefix "ALL") (or depth "ALL")))
+              (buffer-name dired-name))
+        (denote-sort-dired--prepare-buffer directory files-fn dired-name buffer-name)
+      (message "No matching files for: %s" files-matching-regexp))))
 
 ;;;###autoload
 (defun denote-sequence-find-dired (type)
