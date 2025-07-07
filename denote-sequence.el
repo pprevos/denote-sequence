@@ -410,13 +410,9 @@ sibling in the sequence."
     (when new-number
       (denote-sequence-join (append butlast (list new-number)) scheme))))
 
-(defun denote-sequence--get-files (&optional files)
-  "Return list of files or buffers in the variable `denote-directory'.
-With optional FILES only consider those, otherwise use `denote-directory-files'."
-  (let* ((denote-directory (or denote-use-directory (denote-directory)))
-         (files (denote-directory-files))
-         (buffers (denote--buffer-file-names)))
-    (delete-dups (append buffers files))))
+(defun denote-sequence--get-files (files)
+  "Return list of FILES plus any buffers in the variable `denote-directory'."
+  (delete-dups (append (denote--buffer-file-names) files)))
 
 ;; TODO 2025-06-23: Return cons cells with sequences and files.  This
 ;; is to be able to do an `alist-get' to get a path given a sequence.
@@ -426,7 +422,8 @@ A sequence is a Denote signature that conforms with `denote-sequence-p'.
 
 With optional FILES consider only those, otherwise use the return value
 of `denote-directory-files'."
-  (seq-filter #'denote-sequence-file-p (denote-sequence--get-files files)))
+  (when-let* ((files (denote-sequence--get-files (or files (denote-directory-files)))))
+    (seq-filter #'denote-sequence-file-p files)))
 
 (defun denote-sequence-get-path (sequence &optional files)
   "Return absolute path of file with SEQUENCE.
