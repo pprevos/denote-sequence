@@ -1025,19 +1025,37 @@ For a more specialised case, see `denote-sequence-find-relatives-dired'."
         (denote-sequence-prompt "Limit to files that extend SEQUENCE (empty for all)")))
       (t
        nil))))
-  (if-let* ((default-directory (denote-directory))
-            (all (if prefix
-                     (denote-sequence-get-all-files-with-prefix prefix)
-                   (denote-sequence-get-all-files)))
-            (files-with-depth (if depth
-                                  (denote-sequence-get-all-files-with-max-depth depth all)
-                                all))
-            (files-sorted (denote-sequence-sort-files files-with-depth)))
-      (let ((dired-buffer (dired (cons default-directory (mapcar #'file-relative-name files-sorted))))
-            (buffer-name (denote-sequence--get-dired-buffer-name prefix depth)))
-        (with-current-buffer dired-buffer
-          (rename-buffer buffer-name :unique)))
-    (user-error "No Denote sequences matching those terms")))
+  (let ((single-dir-p (denote-has-single-denote-directory-p)))
+    (if-let* ((default-directory (if single-dir-p
+                                     (car (denote-directories))
+                                   (denote-sort-dired--find-common-directory (denote-directories))))
+              (all (if prefix
+                       (denote-sequence-get-all-files-with-prefix prefix)
+                     (denote-sequence-get-all-files)))
+              (files-with-depth (if depth
+                                    (denote-sequence-get-all-files-with-max-depth depth all)
+                                  all))
+              (files-sorted (denote-sequence-sort-files files-with-depth)))
+        (let ((dired-buffer (dired (cons default-directory (if single-dir-p (mapcar #'file-relative-name files-sorted) files-sorted))))
+              (buffer-name (denote-sequence--get-dired-buffer-name prefix depth)))
+          (with-current-buffer dired-buffer
+            (rename-buffer buffer-name :unique)
+            (setq-local revert-buffer-function
+                        (lambda (&rest _)
+                          (if-let* ((default-directory (if single-dir-p
+                                                           (car (denote-directories))
+                                                         (denote-sort-dired--find-common-directory (denote-directories))))
+                                    (all (if prefix
+                                             (denote-sequence-get-all-files-with-prefix prefix)
+                                           (denote-sequence-get-all-files)))
+                                    (files-with-depth (if depth
+                                                          (denote-sequence-get-all-files-with-max-depth depth all)
+                                                        all))
+                                    (files-sorted (denote-sequence-sort-files files-with-depth)))
+                              (setq-local dired-directory (cons default-directory (if single-dir-p (mapcar #'file-relative-name files-sorted) files-sorted))))
+                          (dired-revert)))
+            (revert-buffer)))
+      (message "No Denote sequences matching those terms"))))
 
 ;;;###autoload
 (defun denote-sequence-find-dired (type)
