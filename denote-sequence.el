@@ -711,7 +711,7 @@ returned by `denote-sequence-get-all-files'."
     (pcase type
       ('all-parents (let ((parents nil)
                           (butlast (butlast components)))
-                      (while (>= (length butlast) 1)
+                      (while (> (length butlast) 1)
                         (when-let* ((prefix (denote-sequence-join butlast scheme))
                                     (parent (seq-find
                                              (lambda (file)
