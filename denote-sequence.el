@@ -1036,7 +1036,7 @@ For a more specialised case, see `denote-sequence-find-relatives-dired'."
                                 files-sorted)))))
     (if-let* ((directory (if relative-p ; see comment in `denote-file-prompt'
                              (car (denote-directories))
-                           (denote-sort-dired--find-common-directory (denote-directories))))
+                           (denote-directories-get-common-root)))
               (files (funcall files-fn))
               (dired-name (format-message "prefix `%s'; depth `%s'" (or prefix "ALL") (or depth "ALL")))
               (buffer-name dired-name))
