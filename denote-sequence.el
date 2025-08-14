@@ -977,15 +977,24 @@ is ignored."
    (or sequences (denote-sequence-get-all-sequences))
    #'denote-sequence-p :require-match nil 'denote-sequence-history))
 
-(defun denote-sequence-depth-prompt (&optional prompt-text)
+(defvar denote-sequence-depth-history nil
+  "Minibuffer history of `denote-sequence-depth-prompt'.")
+
+(defun denote-sequence-depth-prompt (&optional prompt-text default-value)
   "Prompt for the depth of a sequence.
-With optional PROMPT-TEXT use it instead of the generic one."
-  (read-number
-   (or prompt-text
-       (format "Get sequences up to this depth %s: "
-               (if (eq denote-sequence-scheme 'alphanumeric)
-                   "(e.g. `1a2' is `3' levels of depth)"
-                 "(e.g. `1=1=2' is `3' levels of depth)")))))
+With optional PROMPT-TEXT use it instead of the generic one.
+
+With optional DEFAULT-VALUE use it as the default minibuffer value, else
+use the `car' of `denote-sequence-depth-history', if any."
+  (let ((default (or default-value (car denote-sequence-depth-history))))
+    (read-number
+     (or prompt-text
+         (format "Get sequences up to this depth %s: "
+                 (if (eq denote-sequence-scheme 'alphanumeric)
+                     "(e.g. `1a2' is `3' levels of depth)"
+                   "(e.g. `1=1=2' is `3' levels of depth)")))
+     default
+     'denote-sequence-depth-history)))
 
 (defun denote-sequence--get-dired-buffer-name (&optional prefix depth)
   "Return a string for `denote-sequence-dired' buffer.
