@@ -986,14 +986,17 @@ With optional PROMPT-TEXT use it instead of the generic one.
 
 With optional DEFAULT-VALUE use it as the default minibuffer value, else
 use the `car' of `denote-sequence-depth-history', if any."
-  (let ((default (or default-value (car denote-sequence-depth-history))))
+  (let* ((default (or default-value (car denote-sequence-depth-history)))
+         (default-number (if (stringp default)
+                             (string-to-number default)
+                           default)))
     (read-number
      (or prompt-text
          (format "Get sequences up to this depth %s: "
                  (if (eq denote-sequence-scheme 'alphanumeric)
                      "(e.g. `1a2' is `3' levels of depth)"
                    "(e.g. `1=1=2' is `3' levels of depth)")))
-     default
+     default-number
      'denote-sequence-depth-history)))
 
 (defun denote-sequence--get-dired-buffer-name (&optional prefix depth)
