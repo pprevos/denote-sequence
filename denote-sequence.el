@@ -1055,7 +1055,7 @@ For a more specialised case, see `denote-sequence-find-relatives-dired'."
                            :is-special-buffer))
               (buffer-name dired-name))
         (denote-sort-dired--prepare-buffer directory files-fn dired-name buffer-name)
-      (message "No matching files for: %s" files-matching-regexp))))
+      (message "No matching files"))))
 
 ;;;###autoload
 (defun denote-sequence-find-dired (type)
