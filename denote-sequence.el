@@ -414,16 +414,27 @@ sibling in the sequence."
   "Return list of FILES plus any buffers in the variable `denote-directory'."
   (delete-dups (append (denote--buffer-file-names) files)))
 
-;; TODO 2025-06-23: Return cons cells with sequences and files.  This
-;; is to be able to do an `alist-get' to get a path given a sequence.
-(defun denote-sequence-get-all-files (&optional files)
+(defun denote-sequence-get-all-files (&optional files as-sequence-path-pairs)
   "Return all files in variable `denote-directory' with a sequence.
 A sequence is a Denote signature that conforms with `denote-sequence-p'.
 
 With optional FILES consider only those, otherwise use the return value
-of `denote-directory-files'."
+of `denote-directory-files'.
+
+With optional AS-SEQUENCE-PATH-PAIRS return all files as a list of pairs
+each in the form of (SEQUENCE . PATH).  Otherwise, return a list of
+strings each representing a file system path."
   (when-let* ((files (denote-sequence--get-files (or files (denote-directory-files)))))
-    (seq-filter #'denote-sequence-file-p files)))
+    (if as-sequence-path-pairs
+        (delq nil
+              (mapcar
+               (lambda (file)
+                 (when (denote-sequence-file-p file)
+                   (cons
+                    (denote-retrieve-filename-signature file)
+                    file)))
+               files))
+      (seq-filter #'denote-sequence-file-p files))))
 
 (defun denote-sequence-get-path (sequence &optional files)
   "Return absolute path of file with SEQUENCE.
