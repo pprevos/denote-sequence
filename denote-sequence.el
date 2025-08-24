@@ -1137,6 +1137,10 @@ the target sequence."
     (denote-rename-file current-file 'keep-current 'keep-current new-sequence 'keep-current 'keep-current)))
 
 ;;;###autoload
+(defalias 'denote-sequence-rename-sequence 'denote-rename-file-signature
+  "Convenience command to manually change the sequence of a file.")
+
+;;;###autoload
 (defun denote-sequence-rename-as-parent (current-file)
   "Make CURRENT-FILE a new parent sequence.
 If CURRENT-FILE has a sequence abort the operation.
