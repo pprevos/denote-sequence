@@ -353,6 +353,12 @@ Also see `denote-sequence-increment-partial'."
    (t
     (error "The string `%s' must contain only numbers or letters" string))))
 
+(defun denote-sequence--sequence-start-p (sequence)
+  "True if deepest part of sequence is 1 or a."
+  (pcase-let* ((components (denote-sequence-split sequence))
+               (last-component (car (nreverse components))))
+    (or (string= last-component "1") (string= last-component "a"))))
+
 (defun denote-sequence-depth (sequence)
   "Get the depth of SEQUENCE.
 For example, 1=2=1 and 1b1 are three levels of depth."
@@ -898,7 +904,11 @@ If the current file does not have a sequence, then behave exactly like
             (next-sequence (denote-sequence--infer-sibling sequence 'next))
             (path (denote-sequence-get-path next-sequence relatives)))
       (find-file path)
-    (user-error "No next sibling for sequence `%s'" sequence)))
+    (let* ((youngest-sibling (denote-sequence-get-new 'sibling sequence)))
+      (if (string= next-sequence youngest-sibling)
+          (user-error "No next sibling for sequence `%s'" sequence)
+        ;; Might be more siblings; keep looking
+        (denote-sequence-find-next-sibling next-sequence)))))
 
 ;;;###autoload
 (defun denote-sequence-find-previous-sibling (sequence)
@@ -908,7 +918,10 @@ If the current file does not have a sequence, then behave exactly like
             (previous-sequence (denote-sequence--infer-sibling sequence 'previous))
             (path (denote-sequence-get-path previous-sequence relatives)))
       (find-file path)
-    (user-error "No previous sibling for sequence `%s'" sequence)))
+    (if (denote-sequence--sequence-start-p sequence)
+        (user-error "No previous sibling for sequence `%s'" sequence)
+      ;; Skip this one and keep looking
+      (denote-sequence-find-previous-sibling previous-sequence))))
 
 (defvar denote-sequence-relative-types
   '(all-parents parent siblings children all-children)
