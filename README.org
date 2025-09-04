@@ -371,8 +371,8 @@ Denote Sequence is meant to be a collective effort.  Every bit of help matters.
 
 + Author/maintainer :: Protesilaos Stavrou.
 
-+ Contributions to code or the manual :: Claudio Migliorelli, Kierin
-  Bell, Rory Molinari, Peter Prevos.
++ Contributions to code or the manual :: Ashton Wiersdorf, Claudio
+  Migliorelli, Kierin Bell, Rory Molinari, Peter Prevos.
 
 + Ideas and/or user feedback :: Alex Carney, Mirko Hernandez.
 
