@@ -988,8 +988,19 @@ Optional ID-ONLY has the same meaning as the `denote-link' command."
          (description (denote-get-link-description file)))
     (denote-link file type description id-only)))
 
+(defun denote-sequence-sort-sequences (sequences)
+  "Sort SEQUENCES according to their sequence.
+Also see `denote-sequence-sort-files'."
+  (sort
+   sequences
+   (lambda (sequence1 sequence2)
+       (string<
+        (denote-sequence--pad sequence1 'all)
+        (denote-sequence--pad sequence2 'all)))))
+
 (defun denote-sequence-sort-files (files-with-sequence)
-  "Sort FILES-WITH-SEQUENCE according to their sequence."
+  "Sort FILES-WITH-SEQUENCE according to their sequence.
+Also see `denote-sequence-sort-sequences'."
   (sort
    files-with-sequence
    (lambda (file-with-sequence-1 file-with-sequence-2)
