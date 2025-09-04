@@ -726,31 +726,35 @@ returned by `denote-sequence-get-all-files'."
                              (funcall comparison (denote-sequence-depth (denote-retrieve-filename-signature file)) depth))
                            (denote-sequence-get-all-files-with-prefix prefix files)))))
     (pcase type
-      ('all-parents (let ((parent-files nil)
-                          (butlast (butlast components))
-                          (found-files (denote-sequence-get-all-files files))
-                          (likely-parents nil))
-                      (while (>= (length butlast) 1)
-                        (push (denote-sequence-join butlast scheme) likely-parents)
-                        (setq butlast (butlast butlast)))
-                      (seq-filter
-                       (lambda (file)
-                         (member (denote-retrieve-filename-signature file) likely-parents))
-                       found-files)))
-      ('parent (let ((butlast (denote-sequence-join (butlast components) scheme)))
-                 (seq-find
-                  (lambda (file)
-                    (string= (denote-retrieve-filename-signature file) butlast))
-                  (denote-sequence-get-all-files files))))
+      ('all-parents
+       (let ((parent-files nil)
+             (butlast (butlast components))
+             (found-files (denote-sequence-get-all-files files))
+             (likely-parents nil))
+         (while (>= (length butlast) 1)
+           (push (denote-sequence-join butlast scheme) likely-parents)
+           (setq butlast (butlast butlast)))
+         (seq-filter
+          (lambda (file)
+            (member (denote-retrieve-filename-signature file) likely-parents))
+          found-files)))
+      ('parent
+       (let ((butlast (denote-sequence-join (butlast components) scheme)))
+         (seq-find
+          (lambda (file)
+            (string= (denote-retrieve-filename-signature file) butlast))
+          (denote-sequence-get-all-files files))))
       ('siblings
        (when-let* ((siblings (funcall filter-common '= (denote-sequence-join (butlast components) scheme)))
                    (current-path (denote-sequence-get-path sequence)))
          (delete current-path siblings)))
-      ('all-children (funcall filter-common '> sequence))
-      ('children (seq-filter
-                  (lambda (file)
-                    (= (denote-sequence-depth (denote-sequence-file-p file)) (+ depth 1)))
-                  (funcall filter-common '> sequence)))
+      ('all-children
+       (funcall filter-common '> sequence))
+      ('children
+       (seq-filter
+        (lambda (file)
+          (= (denote-sequence-depth (denote-sequence-file-p file)) (+ depth 1)))
+        (funcall filter-common '> sequence)))
       (_ (error "The type `%s' is not among the allowed types" type)))))
 
 (defvar denote-sequence-type-history nil
