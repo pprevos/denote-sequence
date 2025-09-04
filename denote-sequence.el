@@ -674,7 +674,7 @@ function `denote-sequence-get-all-sequences-with-prefix'."
       (denote-sequence-join (butlast (denote-sequence-split sequence)) scheme))))
 
 (defun denote-sequence--get-new-sibling (sequence &optional sequences)
-  "Return a new sibling SEQUENCE.
+  "Return a new sibling of SEQUENCE.
 Optional SEQUENCES has the same meaning as that specified in the
 function `denote-sequence-get-all-sequences-with-prefix'."
   (let* ((children-p (denote-sequence--children-implied-p sequence)))
