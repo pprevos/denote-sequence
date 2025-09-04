@@ -742,7 +742,10 @@ returned by `denote-sequence-get-all-files'."
                   (lambda (file)
                     (string= (denote-retrieve-filename-signature file) butlast))
                   (denote-sequence-get-all-files files))))
-      ('siblings (funcall filter-common '= (denote-sequence-join (butlast components) scheme)))
+      ('siblings
+       (when-let* ((siblings (funcall filter-common '= (denote-sequence-join (butlast components) scheme)))
+                   (current-path (denote-sequence-get-path sequence)))
+         (delete current-path siblings)))
       ('all-children (funcall filter-common '> sequence))
       ('children (seq-filter
                   (lambda (file)
@@ -950,8 +953,7 @@ for a file among the matching files."
                                  '(all-parents parent siblings children all-children)
                                  #'denote-sequence-annotate-relative-types)))
   (if-let* ((sequence (denote-sequence-file-p buffer-file-name)))
-      (if-let* ((matches (denote-sequence-get-relative sequence type))
-                (relatives (delete buffer-file-name matches)))
+      (if-let* ((relatives (denote-sequence-get-relative sequence type)))
           (find-file (if (stringp relatives)
                          relatives
                        (denote-sequence-file-prompt "Select a relative" relatives)))
@@ -1094,9 +1096,7 @@ Also see `denote-sequence-dired'."
                                         children))))
   (if-let* ((sequence (denote-sequence-file-p buffer-file-name)))
       (if-let* ((default-directory (denote-directory))
-                (relatives (delete buffer-file-name
-                                   (ensure-list
-                                    (denote-sequence-get-relative sequence type))))
+                (relatives (ensure-list (denote-sequence-get-relative sequence type)))
                 (files-sorted (denote-sequence-sort-files relatives)))
           (dired (cons (format-message "*`%s' type relatives of `%s'" type sequence)
                        (mapcar #'file-relative-name files-sorted)))
