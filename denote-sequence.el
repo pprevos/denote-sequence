@@ -900,31 +900,39 @@ If the current file does not have a sequence, then behave exactly like
     (call-interactively 'denote)))
 
 ;;;###autoload
-(defun denote-sequence-find-next-sibling (sequence)
-  "Visit the next sibling of file with SEQUENCE."
-  (interactive (list (denote-sequence--get-file-in-dired-or-prompt "Make a new sibling of SEQUENCE")))
-  (if-let* ((relatives (denote-sequence-get-relative sequence 'siblings))
-            (next-sequence (denote-sequence--infer-sibling sequence 'next))
-            (path (denote-sequence-get-path next-sequence relatives)))
-      (find-file path)
-    (let* ((youngest-sibling (denote-sequence-get-new 'sibling sequence)))
-      (if (string= next-sequence youngest-sibling)
-          (user-error "No next sibling for sequence `%s'" sequence)
-        ;; Might be more siblings; keep looking
-        (denote-sequence-find-next-sibling next-sequence)))))
+(defun denote-sequence-find-next-sibling (sequence relatives)
+  "Visit the next sibling of file with SEQUENCE.
+When called from Lisp RELATIVES is the list of files to search through.
+In interactive use, this happens internally when an immediate next
+sibling is not available and the search needs to be repeated."
+  (interactive (list (denote-sequence--get-file-in-dired-or-prompt "Make a new sibling of SEQUENCE") nil))
+  (let ((relatives (or relatives (denote-sequence-get-relative sequence 'siblings))))
+    (if-let* ((_ relatives)
+              (next-sequence (denote-sequence--infer-sibling sequence 'next))
+              (path (denote-sequence-get-path next-sequence relatives)))
+        (find-file path)
+      (let* ((youngest-sibling (denote-sequence-get-new 'sibling sequence)))
+        (if (string= next-sequence youngest-sibling)
+            (user-error "No next sibling for sequence `%s'" sequence)
+          ;; Might be more siblings; keep looking
+          (denote-sequence-find-next-sibling next-sequence relatives))))))
 
 ;;;###autoload
-(defun denote-sequence-find-previous-sibling (sequence)
-  "Visit the previous sibling of file with SEQUENCE."
-  (interactive (list (denote-sequence--get-file-in-dired-or-prompt "Make a new sibling of SEQUENCE")))
-  (if-let* ((relatives (denote-sequence-get-relative sequence 'siblings))
-            (previous-sequence (denote-sequence--infer-sibling sequence 'previous))
-            (path (denote-sequence-get-path previous-sequence relatives)))
-      (find-file path)
-    (if (denote-sequence--sequence-start-p sequence)
-        (user-error "No previous sibling for sequence `%s'" sequence)
-      ;; Skip this one and keep looking
-      (denote-sequence-find-previous-sibling previous-sequence))))
+(defun denote-sequence-find-previous-sibling (sequence relatives)
+  "Visit the previous sibling of file with SEQUENCE.
+When called from Lisp RELATIVES is the list of files to search through.
+In interactive use, this happens internally when an immediate previous
+sibling is not available and the search needs to be repeated."
+  (interactive (list (denote-sequence--get-file-in-dired-or-prompt "Make a new sibling of SEQUENCE") nil))
+  (let ((relatives (or relatives (denote-sequence-get-relative sequence 'siblings))))
+    (if-let* ((_ relatives)
+              (previous-sequence (denote-sequence--infer-sibling sequence 'previous))
+              (path (denote-sequence-get-path previous-sequence relatives)))
+        (find-file path)
+      (if (denote-sequence--sequence-start-p sequence)
+          (user-error "No previous sibling for sequence `%s'" sequence)
+        ;; Skip this one and keep looking
+        (denote-sequence-find-previous-sibling previous-sequence relatives)))))
 
 (defvar denote-sequence-relative-types
   '(all-parents parent siblings children all-children)
