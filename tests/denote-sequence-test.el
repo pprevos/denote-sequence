@@ -40,7 +40,7 @@
               (found (seq-filter
                       (lambda (file)
                         (member file relatives))
-                      (mapcar (lambda (file) (expand-file-name file denote-directory)) files))))
+                      files)))
     (>= (length files) (length found))))
 
 (ert-deftest dst-denote-sequence--get-new-exhaustive ()
