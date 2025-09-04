@@ -925,6 +925,18 @@ If the current file does not have a sequence, then behave exactly like
          (denote-use-signature new-sequence))
     (call-interactively 'denote)))
 
+(defun denote-sequence--keep-siblings (lesser-or-greater sequence sequences)
+  "Return LESSER-OR-GREATER sequences of SEQUENCE among SEQUENCES.
+LESSER-OR-GREATER is the symbol `lesser' or `greater'.  SEQUENCES are
+siblings of SEQUENCE."
+  (let* ((all-sequences (delete-dups (push sequence sequences)))
+         (sorted (denote-sequence-sort-sequences all-sequences))
+         (position (seq-position sorted sequence #'string=)))
+    (pcase lesser-or-greater
+      ('lesser (seq-take sorted position))
+      ('greater (nthcdr (+ position 1) sorted))
+      (_ (error "The `%s' is not a known operation")))))
+
 ;;;###autoload
 (defun denote-sequence-find-next-sibling (sequence relatives)
   "Visit the next sibling of file with SEQUENCE.
