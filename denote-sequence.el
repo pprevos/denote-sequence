@@ -564,6 +564,28 @@ means to pad the full length of the sequence."
          "=")
       (string-pad s 32 32 :pad-from-start))))
 
+(defun denote-sequence-sort-sequences (sequences)
+  "Sort SEQUENCES according to their sequence.
+Also see `denote-sequence-sort-files'."
+  (sort
+   sequences
+   (lambda (sequence1 sequence2)
+       (string<
+        (denote-sequence--pad sequence1 'all)
+        (denote-sequence--pad sequence2 'all)))))
+
+(defun denote-sequence-sort-files (files-with-sequence)
+  "Sort FILES-WITH-SEQUENCE according to their sequence.
+Also see `denote-sequence-sort-sequences'."
+  (sort
+   files-with-sequence
+   (lambda (file-with-sequence-1 file-with-sequence-2)
+     (let ((s1 (denote-retrieve-filename-signature file-with-sequence-1))
+           (s2 (denote-retrieve-filename-signature file-with-sequence-2)))
+       (string<
+        (denote-sequence--pad s1 'all)
+        (denote-sequence--pad s2 'all))))))
+
 (defun denote-sequence--get-largest-by-order (sequences type)
   "Sort SEQUENCES of TYPE to get largest in order, using `denote-sequence--pad'."
   (car
@@ -987,28 +1009,6 @@ Optional ID-ONLY has the same meaning as the `denote-link' command."
   (let* ((type (denote-filetype-heuristics buffer-file-name))
          (description (denote-get-link-description file)))
     (denote-link file type description id-only)))
-
-(defun denote-sequence-sort-sequences (sequences)
-  "Sort SEQUENCES according to their sequence.
-Also see `denote-sequence-sort-files'."
-  (sort
-   sequences
-   (lambda (sequence1 sequence2)
-       (string<
-        (denote-sequence--pad sequence1 'all)
-        (denote-sequence--pad sequence2 'all)))))
-
-(defun denote-sequence-sort-files (files-with-sequence)
-  "Sort FILES-WITH-SEQUENCE according to their sequence.
-Also see `denote-sequence-sort-sequences'."
-  (sort
-   files-with-sequence
-   (lambda (file-with-sequence-1 file-with-sequence-2)
-     (let ((s1 (denote-retrieve-filename-signature file-with-sequence-1))
-           (s2 (denote-retrieve-filename-signature file-with-sequence-2)))
-       (string<
-        (denote-sequence--pad s1 'all)
-        (denote-sequence--pad s2 'all))))))
 
 (defvar denote-sequence-history nil
   "Minibuffer history of `denote-sequence-prompt'.")
