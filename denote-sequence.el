@@ -354,7 +354,7 @@ Also see `denote-sequence-increment-partial'."
     (error "The string `%s' must contain only numbers or letters" string))))
 
 (defun denote-sequence--sequence-start-p (sequence)
-  "True if deepest part of sequence is 1 or a."
+  "Return non-nil if deepest part of SEQUENCE is 1 or a."
   (pcase-let* ((components (denote-sequence-split sequence))
                (last-component (car (nreverse components))))
     (or (string= last-component "1") (string= last-component "a"))))
