@@ -726,17 +726,17 @@ returned by `denote-sequence-get-all-files'."
                              (funcall comparison (denote-sequence-depth (denote-retrieve-filename-signature file)) depth))
                            (denote-sequence-get-all-files-with-prefix prefix files)))))
     (pcase type
-      ('all-parents (let ((parents nil)
-                          (butlast (butlast components)))
-                      (while (> (length butlast) 1)
-                        (when-let* ((prefix (denote-sequence-join butlast scheme))
-                                    (parent (seq-find
-                                             (lambda (file)
-                                               (string= (denote-retrieve-filename-signature file) prefix))
-                                             (denote-sequence-get-all-files files))))
-                          (push parent parents)
-                          (setq butlast (butlast butlast))))
-                      parents))
+      ('all-parents (let ((parent-files nil)
+                          (butlast (butlast components))
+                          (found-files (denote-sequence-get-all-files files))
+                          (likely-parents nil))
+                      (while (>= (length butlast) 1)
+                        (push (denote-sequence-join butlast scheme) likely-parents)
+                        (setq butlast (butlast butlast)))
+                      (seq-filter
+                       (lambda (file)
+                         (member (denote-retrieve-filename-signature file) likely-parents))
+                       found-files)))
       ('parent (let ((butlast (denote-sequence-join (butlast components) scheme)))
                  (seq-find
                   (lambda (file)
