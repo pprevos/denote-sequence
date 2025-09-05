@@ -930,7 +930,7 @@ siblings of SEQUENCE."
     (pcase lesser-or-greater
       (:lesser (seq-take sorted position))
       (:greater (nthcdr (+ position 1) sorted))
-      (_ (error "The `%s' is not a known operation" lesser-or-greater)))))
+      (_ (error "The `%S' is not a known operation" lesser-or-greater)))))
 
 ;; NOTE 2025-09-05: The `denote-sequence--keep-sibling-files' will
 ;; always return :greater if the phony-target is part of the
