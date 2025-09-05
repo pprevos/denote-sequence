@@ -932,6 +932,13 @@ siblings of SEQUENCE."
       (:greater (nthcdr (+ position 1) sorted))
       (_ (error "The `%s' is not a known operation" lesser-or-greater)))))
 
+;; NOTE 2025-09-05: The `denote-sequence--keep-sibling-files' will
+;; always return :greater if the phony-target is part of the
+;; files-with-sequences and is in the last position.  More generally,
+;; the :greater lists the phony target if it already is a part of
+;; files-with-sequences.  The way we use this function for the
+;; `denote-sequence-find-next-sibling' should not be a problem, but we
+;; might want to be more strict if you use this elsewhere.
 (defun denote-sequence--keep-sibling-files (lesser-or-greater sequence files-with-sequences)
   "Return LESSER-OR-GREATER sequences of SEQUENCE among FILES-WITH-SEQUENCES.
 LESSER-OR-GREATER is the keyword `:lesser' or `:greater'.
