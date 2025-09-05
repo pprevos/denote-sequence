@@ -952,7 +952,7 @@ FILES-WITH-SEQUENCES are siblings of SEQUENCE."
         (pcase lesser-or-greater
           (:lesser (seq-take sorted position))
           (:greater (nthcdr (+ position 1) sorted))
-          (_ (error "The `%s' is not a known operation"))))
+          (_ (error "The `%S' is not a known operation" lesser-or-greater))))
     (error "Cannot have a file path that satisfies `denote-sequence-file-p' while using sequence `%s'" sequence)))
 
 ;;;###autoload
