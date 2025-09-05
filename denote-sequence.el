@@ -929,7 +929,7 @@ siblings of SEQUENCE."
     (pcase lesser-or-greater
       (:lesser (seq-take sorted position))
       (:greater (nthcdr (+ position 1) sorted))
-      (_ (error "The `%s' is not a known operation")))))
+      (_ (error "The `%s' is not a known operation" lesser-or-greater)))))
 
 (defun denote-sequence--keep-sibling-files (lesser-or-greater sequence files-with-sequences)
   "Return LESSER-OR-GREATER sequences of SEQUENCE among FILES-WITH-SEQUENCES.
