@@ -923,7 +923,8 @@ If the current file does not have a sequence, then behave exactly like
   "Return LESSER-OR-GREATER sequences of SEQUENCE among SEQUENCES.
 LESSER-OR-GREATER is the keyword `:lesser' or `:greater'.  SEQUENCES are
 siblings of SEQUENCE."
-  (let* ((all-sequences (delete-dups (push sequence sequences)))
+  (let* ((sequences-copy (copy-sequence sequences))
+         (all-sequences (delete-dups (push sequence sequences-copy)))
          (sorted (denote-sequence-sort-sequences all-sequences))
          (position (seq-position sorted sequence #'string=)))
     (pcase lesser-or-greater
@@ -937,7 +938,8 @@ LESSER-OR-GREATER is the keyword `:lesser' or `:greater'.
 FILES-WITH-SEQUENCES are siblings of SEQUENCE."
   (if-let* ((phony-target (denote-format-file-name (car (denote-directories)) "00000000T000000" '("keyword") "title" ".org" sequence))
             (_ (denote-sequence-file-p phony-target)))
-      (let* ((all-sequences (delete-dups (push phony-target files-with-sequences)))
+      (let* ((files-with-sequences-copy (copy-sequence files-with-sequences))
+             (all-sequences (delete-dups (push phony-target files-with-sequences-copy)))
              (sorted (denote-sequence-sort-files all-sequences))
              (position (seq-position sorted phony-target #'string=)))
         (pcase lesser-or-greater
