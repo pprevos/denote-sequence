@@ -262,13 +262,13 @@ function `denote-sequence-get-relative'."
 (ert-deftest dst-denote-sequence--keep-siblings ()
   "Test that `denote-sequence--keep-siblings' behaves as expected."
   (should (equal
-           (denote-sequence--keep-siblings 'greater "1b" '("1f" "1b" "1a" "1d" "1e" "1c"))
+           (denote-sequence--keep-siblings :greater "1b" '("1f" "1b" "1a" "1d" "1e" "1c"))
            '("1c" "1d" "1e" "1f")))
   (should (equal
-           (denote-sequence--keep-siblings 'lesser "1d" '("1f" "1b" "1a" "1d" "1e" "1c"))
+           (denote-sequence--keep-siblings :lesser "1d" '("1f" "1b" "1a" "1d" "1e" "1c"))
            '("1a" "1b" "1c")))
-  (should (null (denote-sequence--keep-siblings 'greater "1f" '("1f" "1b" "1a" "1d" "1e" "1c"))))
-  (should (null (denote-sequence--keep-siblings 'lesser "1a" '("1f" "1b" "1a" "1d" "1e" "1c")))))
+  (should (null (denote-sequence--keep-siblings :greater "1f" '("1f" "1b" "1a" "1d" "1e" "1c"))))
+  (should (null (denote-sequence--keep-siblings :lesser "1a" '("1f" "1b" "1a" "1d" "1e" "1c")))))
 
 ;; TODO 2025-09-05: Write a test like the above for `denote-sequence--keep-sibling-files'.
 
