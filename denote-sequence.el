@@ -935,7 +935,7 @@ siblings of SEQUENCE."
   "Return LESSER-OR-GREATER sequences of SEQUENCE among FILES-WITH-SEQUENCES.
 LESSER-OR-GREATER is the keyword `:lesser' or `:greater'.
 FILES-WITH-SEQUENCES are siblings of SEQUENCE."
-  (if-let* ((phony-target (denote-format-file-name (car (denote-directories)) "000000T000000" nil nil ".org" sequence))
+  (if-let* ((phony-target (denote-format-file-name (car (denote-directories)) "00000000T000000" '("keyword") "title" ".org" sequence))
             (_ (denote-sequence-file-p phony-target)))
       (let* ((all-sequences (delete-dups (push phony-target files-with-sequences)))
              (sorted (denote-sequence-sort-files all-sequences))
