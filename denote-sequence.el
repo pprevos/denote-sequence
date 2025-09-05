@@ -353,12 +353,6 @@ Also see `denote-sequence-increment-partial'."
    (t
     (error "The string `%s' must contain only numbers or letters" string))))
 
-(defun denote-sequence--sequence-start-p (sequence)
-  "Return non-nil if deepest part of SEQUENCE is 1 or a."
-  (pcase-let* ((components (denote-sequence-split sequence))
-               (last-component (car (nreverse components))))
-    (or (string= last-component "1") (string= last-component "a"))))
-
 (defun denote-sequence-depth (sequence)
   "Get the depth of SEQUENCE.
 For example, 1=2=1 and 1b1 are three levels of depth."
@@ -964,11 +958,10 @@ sibling is not available and the search needs to be repeated."
               (next-sequence (denote-sequence--infer-sibling sequence 'next))
               (path (denote-sequence-get-path next-sequence relatives)))
         (find-file path)
-      (let* ((youngest-sibling (denote-sequence-get-new 'sibling sequence)))
-        (if (string= next-sequence youngest-sibling)
-            (user-error "No next sibling for sequence `%s'" sequence)
-          ;; Might be more siblings; keep looking
-          (denote-sequence-find-next-sibling next-sequence relatives))))))
+      (if-let* ((_ next-sequence)
+                (next-siblings (denote-sequence--keep-sibling-files :greater next-sequence relatives)))
+          (denote-sequence-find-next-sibling next-sequence next-siblings)
+        (user-error "No next sibling for sequence `%s'" sequence)))))
 
 ;;;###autoload
 (defun denote-sequence-find-previous-sibling (sequence relatives)
@@ -982,10 +975,10 @@ sibling is not available and the search needs to be repeated."
               (previous-sequence (denote-sequence--infer-sibling sequence 'previous))
               (path (denote-sequence-get-path previous-sequence relatives)))
         (find-file path)
-      (if (denote-sequence--sequence-start-p sequence)
-          (user-error "No previous sibling for sequence `%s'" sequence)
-        ;; Skip this one and keep looking
-        (denote-sequence-find-previous-sibling previous-sequence relatives)))))
+      (if-let* ((_ previous-sequence)
+                (previous-siblings (denote-sequence--keep-sibling-files :lesser previous-sequence relatives)))
+          (denote-sequence-find-previous-sibling previous-sequence previous-siblings)
+        (user-error "No previous sibling for sequence `%s'" sequence)))))
 
 (defvar denote-sequence-relative-types
   '(all-parents parent siblings children all-children)
