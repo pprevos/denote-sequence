@@ -937,6 +937,21 @@ siblings of SEQUENCE."
       (:greater (nthcdr (+ position 1) sorted))
       (_ (error "The `%s' is not a known operation")))))
 
+(defun denote-sequence--keep-sibling-files (lesser-or-greater sequence files-with-sequences)
+  "Return LESSER-OR-GREATER sequences of SEQUENCE among FILES-WITH-SEQUENCES.
+LESSER-OR-GREATER is the keyword `:lesser' or `:greater'.
+FILES-WITH-SEQUENCES are siblings of SEQUENCE."
+  (if-let* ((phony-target (denote-format-file-name (car (denote-directories)) "000000T000000" nil nil ".org" sequence))
+            (_ (denote-sequence-file-p phony-target)))
+      (let* ((all-sequences (delete-dups (push phony-target files-with-sequences)))
+             (sorted (denote-sequence-sort-files all-sequences))
+             (position (seq-position sorted phony-target #'string=)))
+        (pcase lesser-or-greater
+          (:lesser (seq-take sorted position))
+          (:greater (nthcdr (+ position 1) sorted))
+          (_ (error "The `%s' is not a known operation"))))
+    (error "Cannot have a file path that satisfies `denote-sequence-file-p' while using sequence `%s'" sequence)))
+
 ;;;###autoload
 (defun denote-sequence-find-next-sibling (sequence relatives)
   "Visit the next sibling of file with SEQUENCE.

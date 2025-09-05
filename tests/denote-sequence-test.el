@@ -270,6 +270,8 @@ function `denote-sequence-get-relative'."
   (should (null (denote-sequence--keep-siblings 'greater "1f" '("1f" "1b" "1a" "1d" "1e" "1c"))))
   (should (null (denote-sequence--keep-siblings 'lesser "1a" '("1f" "1b" "1a" "1d" "1e" "1c")))))
 
+;; TODO 2025-09-05: Write a test like the above for `denote-sequence--keep-sibling-files'.
+
 (provide 'denote-sequence-test)
 ;;; denote-sequence-test.el ends here
 
