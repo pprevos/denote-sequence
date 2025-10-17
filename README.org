@@ -205,6 +205,11 @@ Concretely, we provide the following commands:
   have such a sequence, then the command behaves the same as the
   aforementioned ~denote-sequence-new-sibling~.
 
+#+findex: denote-sequence-rename-as-parent
+Finally, to make an existing file use the Denote file-naming scheme
+and become a new parent sequence, use the command ~denote-sequence-rename-as-parent~.
+[ The ~denote-sequence-rename-as-parent~ is part of {{{development-version}}}. ]
+
 ** Find a relative of the current sequence
 :PROPERTIES:
 :CUSTOM_ID: h:find-a-relative-of-the-current-sequence
