@@ -4,9 +4,9 @@
 #+language: en
 #+options: ':t toc:nil author:t email:t num:t
 #+startup: content
-#+macro: stable-version 0.1.0
-#+macro: release-date 2025-04-15
-#+macro: development-version 0.2.0-dev
+#+macro: stable-version 0.2.0
+#+macro: release-date 2025-10-17
+#+macro: development-version 0.3.0-dev
 #+export_file_name: denote-sequence.texi
 #+texinfo_filename: denote-sequence.info
 #+texinfo_dir_category: Emacs misc features
@@ -208,7 +208,6 @@ Concretely, we provide the following commands:
 #+findex: denote-sequence-rename-as-parent
 Finally, to make an existing file use the Denote file-naming scheme
 and become a new parent sequence, use the command ~denote-sequence-rename-as-parent~.
-[ The ~denote-sequence-rename-as-parent~ is part of {{{development-version}}}. ]
 
 ** Find a relative of the current sequence
 :PROPERTIES:
@@ -229,7 +228,7 @@ puts all the matching files in a bespoke Dired buffer ([[#h:show-all-or-some-seq
 #+findex: denote-sequence-find-previous-sibling
 Finally, the commands ~denote-sequence-find-next-sibling~ and
 ~denote-sequence-find-previous-sibling~ move between sibling files in
-a given sequence. [ These two commands are part of {{{development-version}}}. ]
+a given sequence.
 
 ** Link only to sequences
 :PROPERTIES:
