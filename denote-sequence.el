@@ -558,37 +558,31 @@ means to pad the full length of the sequence."
          "=")
       (string-pad s 32 32 :pad-from-start))))
 
+(defun denote-sequence--smaller-p (sequence1 sequence2)
+  "Return non-nil if SEQUENCE1 is smaller than SEQUENCE2."
+  (string<
+   (denote-sequence--pad sequence1 'all)
+   (denote-sequence--pad sequence2 'all)))
+
 (defun denote-sequence-sort-sequences (sequences)
   "Sort SEQUENCES according to their sequence.
 Also see `denote-sequence-sort-files'."
-  (sort
-   sequences
-   (lambda (sequence1 sequence2)
-       (string<
-        (denote-sequence--pad sequence1 'all)
-        (denote-sequence--pad sequence2 'all)))))
+  (sort sequences #'denote-sequence--smaller-p))
+
+(defun denote-sequence--file-smaller-p (file1 file2)
+  "Return non-nil if FILE1 has a smaller sequence than FILE2."
+  (let ((sequence1 (denote-retrieve-filename-signature file1))
+        (sequence2 (denote-retrieve-filename-signature file2)))
+    (denote-sequence--smaller-p sequence1 sequence2)))
 
 (defun denote-sequence-sort-files (files-with-sequence)
   "Sort FILES-WITH-SEQUENCE according to their sequence.
 Also see `denote-sequence-sort-sequences'."
-  (sort
-   files-with-sequence
-   (lambda (file-with-sequence-1 file-with-sequence-2)
-     (let ((s1 (denote-retrieve-filename-signature file-with-sequence-1))
-           (s2 (denote-retrieve-filename-signature file-with-sequence-2)))
-       (string<
-        (denote-sequence--pad s1 'all)
-        (denote-sequence--pad s2 'all))))))
+  (sort files-with-sequence #'denote-sequence--file-smaller-p))
 
 (defun denote-sequence--get-largest-by-order (sequences type)
   "Sort SEQUENCES of TYPE to get largest in order, using `denote-sequence--pad'."
-  (car
-   (reverse
-    (sort sequences
-          (lambda (s1 s2)
-            (string<
-             (denote-sequence--pad s1 type)
-             (denote-sequence--pad s2 type)))))))
+  (car (reverse (sort sequences #'denote-sequence--smaller-p))))
 
 (defun denote-sequence--string-length-sans-delimiter (string)
   "Return length of STRING without the equals sign."
