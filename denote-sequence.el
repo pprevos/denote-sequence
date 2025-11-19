@@ -499,7 +499,7 @@ With optional FILES, operate on them, else use the return value of
                        (components (denote-sequence-split sequence))
                        ((>= depth (length components))))
              file))
-         (denote-sequence-get-all-files files))))
+       (or files (denote-sequence-get-all-files)))))
 
 (defun denote-sequence-get-all-sequences (&optional files)
   "Return all sequences in `denote-directory-files'.
