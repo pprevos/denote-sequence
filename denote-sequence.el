@@ -1238,6 +1238,139 @@ CHECK THE RESULTING SEQUENCES FOR DUPLICATES."
 
 ;;;; Display a hierarchy
 
+(defgroup denote-sequence-hierarchy ()
+  "Hierarchy view of Denote sequences."
+  :group 'denote
+  :group 'denote-sequence
+  :link '(info-link "(denote) top")
+  :link '(info-link "(denote-sequence) top")
+  :link '(url-link :tag "Denote homepage" "https://protesilaos.com/emacs/denote")
+  :link '(url-link :tag "Denote Sequence homepage" "https://protesilaos.com/emacs/denote-sequence"))
+
+(defcustom denote-sequence-hierarchy-indentation 2
+  "Number of spaces to indent each level of depth in `denote-sequence-view-hierarchy'."
+  :type 'natnum
+  :package-version '(denote . "0.3.0")
+  :group 'denote-sequence-hierarchy)
+
+(defun denote-sequence--hierarchy-insert (file)
+  "Insert FILE in the hierarchy with indentation matching the sequence depth."
+  (condition-case data
+      (let* ((title (denote-retrieve-title-or-filename file (denote-filetype-heuristics file)))
+             (keywords (denote-retrieve-filename-keywords file))
+             (sequence (denote-retrieve-filename-signature file))
+             (depth (denote-sequence-depth sequence))
+             (indent (if (eq depth 1)
+                         ""
+                       (make-string (* (- depth 1) denote-sequence-hierarchy-indentation) ? )))
+             (beginning (point))
+             (inhibit-read-only t))
+        (insert
+         (propertize
+          ;; FIXME 2025-11-19: Adjust this to account only for
+          ;; elements that are present.  Only the sequence is
+          ;; mandatory in this regard.
+          (format "%s%s %s _%s"
+                  (propertize indent
+                              'cursor-sensor-functions
+                              (list
+                               (lambda (&rest _)
+                                 (re-search-forward "[[:alnum:]]" nil t)
+                                 (forward-char -1))))
+                  (propertize sequence 'denote-sequence-hierarchy-sequence-text t)
+                  (propertize title 'denote-sequence-hierarchy-title-text t)
+                  (propertize keywords 'denote-sequence-hierarchy-keywords-text t))
+          'denote-sequence-hierarchy-level depth
+          'denote-sequence-hierarchy-file file))
+        (insert "\n"))
+    (error (message "Failed label-button-fn with data: %s" data))))
+
+(defun denote-sequence-hierarchy-get-level ()
+  "Return the outline level at point."
+  (if-let* ((level (get-text-property (point) 'denote-sequence-hierarchy-level)))
+      level
+    (user-error "No outline level found at position `%s'" position)))
+
+(defun denote-sequence-hierarchy-find-file (position)
+  "Find the file at POSITION in `denote-sequence-view-hierarchy' buffer.
+When called interactively POSITION is the current `point'."
+  (interactive (list (point)))
+  (if-let* ((file (get-text-property position 'denote-sequence-hierarchy-file)))
+      (funcall denote-open-link-function file)
+    (user-error "No file found at position `%s'" position)))
+
+(defun denote-sequence--hierarchy-get-buffer (prefix depth)
+  "Return buffer for `denote-sequence-view-hierarchy'.
+PREFIX and DEPTH are used to derive the name of the buffer as well as to
+set the `revert-buffer-function'."
+  (let* ((name (format-message "*denote-sequence-hierarchy with prefix `%s'; depth `%s'*" (or prefix "ALL") (or depth "ALL")))
+         (buffer (get-buffer-create name))
+         (inhibit-read-only t))
+    (with-current-buffer buffer
+      (erase-buffer)
+      (setq-local revert-buffer-function
+                  (lambda (_ignore-auto _no-confirm)
+                    (denote-sequence-view-hierarchy prefix depth))))
+    buffer))
+
+;; TODO 2025-11-19: Review which keybindings we need to cover the
+;; basic use-case.  I do not want to have a million options here.
+(defvar denote-sequence-hierarchy-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "RET") #'denote-sequence-hierarchy-find-file)
+    (define-key map (kbd "TAB") #'outline-cycle)
+    (define-key map (kbd "S-TAB") #'outline-cycle-buffer)
+    (define-key map (kbd "<backtab>") #'outline-cycle-buffer)
+    (define-key map (kbd "g") #'revert-buffer)
+    (define-key map (kbd "f") #'outline-forward-same-level)
+    (define-key map (kbd "b") #'outline-backward-same-level)
+    (define-key map (kbd "n") #'outline-next-visible-heading)
+    (define-key map (kbd "p") #'outline-previous-visible-heading)
+    map)
+  "Key map for `denote-sequence-hierarchy-mode'.")
+
+(defun denote-sequence--hierarchy-face-matcher-subr (property)
+  "Search forward for PROPERTY and return match data."
+  (when-let* ((properties (text-property-search-forward property))
+              (beginning (prop-match-beginning properties))
+              (end (prop-match-end properties)) )
+    (set-match-data (list beginning end))
+    (point)))
+
+(defun denote-sequence--hierarchy-face-matcher-sequence (limit)
+  "Font lock matcher for sequences using LIMIT."
+  (denote-sequence--hierarchy-face-matcher-subr 'denote-sequence-hierarchy-sequence-text))
+
+(defun denote-sequence--hierarchy-face-matcher-title (limit)
+  "Font lock matcher for titles using LIMIT."
+  (denote-sequence--hierarchy-face-matcher-subr 'denote-sequence-hierarchy-title-text))
+
+(defun denote-sequence--hierarchy-face-matcher-keywords (limit)
+  "Font lock matcher for keywords using LIMIT."
+  (denote-sequence--hierarchy-face-matcher-subr 'denote-sequence-hierarchy-keywords-text))
+
+(defvar denote-sequence-hierarchy-font-lock-keywords
+  '((denote-sequence--hierarchy-face-matcher-sequence
+     (0 'denote-faces-signature))
+    (denote-sequence--hierarchy-face-matcher-title
+     (0 'denote-faces-title))
+    (denote-sequence--hierarchy-face-matcher-keywords
+     (0 'denote-faces-keywords)))
+  "Font lock keywords for `denote-sequence-hierarchy-mode'.")
+
+(define-derived-mode denote-sequence-hierarchy-mode text-mode "Denote Hierarchy"
+  "Major mode for `denote-sequence-view-hierarchy' buffers."
+  :interactive nil
+  (setq-local font-lock-defaults '(denote-sequence-hierarchy-font-lock-keywords))
+  (setq-local outline-regexp "[\s[:alnum:]]+")
+  (setq-local outline-level #'denote-sequence-hierarchy-get-level)
+  (setq-local outline-minor-mode-highlight 'append)
+  (setq-local outline-minor-mode-cycle t)
+  (setq-local outline-minor-mode-use-buttons nil)
+  (setq-local buffer-read-only t)
+  (cursor-sensor-mode 1)
+  (outline-minor-mode 1))
+
 ;;;###autoload
 (defun denote-sequence-view-hierarchy (&optional prefix depth)
   "Show a hierachy of sequences.
@@ -1264,49 +1397,20 @@ string, which means to not use a prefix as a restriction."
         (denote-sequence-prompt "Limit to files that extend SEQUENCE (empty for all)")))
       (t
        nil))))
-  (require 'hierarchy)
   (if-let* ((files-with-prefix (if (and prefix (not (string-blank-p prefix)))
                                    (denote-sequence-get-all-files-with-prefix prefix)
                                  (denote-sequence-get-all-files)))
-            (files-with-depth (if depth
-                                  (denote-sequence-get-all-files-with-max-depth depth files-with-prefix)
-                                files-with-prefix))
-            ;; NOTE 2025-11-19: We need this to base all our files
-            ;; relative to it.  I was trying to work without it, but
-            ;; nothing yielded the desired results.
-            (phony-root (denote-format-file-name (car (denote-directories)) "00000000T000000" '("keyword") "title" ".txt" "0"))
-            (files (append (list phony-root) files-with-depth)))
-      (let* ((buffer (get-buffer-create "*denote-sequence-hierarchy*"))
-             (hierarchy (hierarchy-new))
-             (all-roots (seq-remove
-                         (lambda (file)
-                           (denote-sequence--infer-parent (denote-retrieve-filename-signature file)))
-                         (remove phony-root files)))
-             (children-fn (lambda (file)
-                            (condition-case data
-                                (if (string= file phony-root)
-                                    all-roots
-                                  (denote-sequence-get-relative (denote-retrieve-filename-signature file) 'children files))
-                              (error (message "Failed childern-fn with data: %s" data)))))
-             (label-button-fn (lambda (file indent)
-                                (condition-case data
-                                    (if (string= file phony-root)
-                                        (insert "")
-                                      (let* ((signature (denote-retrieve-filename-signature file))
-                                             (title (denote-retrieve-title-or-filename file (denote-filetype-heuristics file)))
-                                             (keywords (denote-retrieve-filename-keywords-as-list file))
-                                             (children (denote-sequence-get-relative signature 'children files)))
-                                        (if children
-                                            (insert (format "%s: %s (%s) [%s]" signature title (string-join keywords ", ") (length children)))
-                                          (insert (format "%s: %s (%s)" signature title (string-join keywords ", "))))))
-                                  (error (message "Failed label-button-fn with data: %s" data)))))
-             (label-action-fn (lambda (file &rest _)
-                                (unless (string= file phony-root)
-                                  (funcall denote-open-link-function file))))
-             (label-fn (hierarchy-labelfn-button label-button-fn label-action-fn)))
-        (hierarchy-add-trees hierarchy files nil children-fn nil :delay-children-processing)
-        (hierarchy-sort hierarchy #'denote-sequence--file-smaller-p)
-        (display-buffer (hierarchy-tree-display hierarchy label-fn buffer)))
+            (files (if depth
+                       (denote-sequence-get-all-files-with-max-depth depth files-with-prefix)
+                     files-with-prefix)))
+      (let* ((buffer (denote-sequence--hierarchy-get-buffer prefix depth))
+             (sorted (denote-sequence-sort-files files)))
+        (with-current-buffer buffer
+          (dolist (file sorted)
+            (denote-sequence--hierarchy-insert file))
+          (goto-char (point-min))
+          (denote-sequence-hierarchy-mode))
+        (display-buffer buffer))
     (user-error "No sequences found")))
 
 (provide 'denote-sequence)
