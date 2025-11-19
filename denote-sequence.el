@@ -1109,7 +1109,7 @@ For a more specialised case, see `denote-sequence-find-relatives-dired'."
        nil))))
   (pcase-let* ((relative-p (denote-has-single-denote-directory-p))
                (files-fn `(lambda ()
-                            (let* ((files (if ,prefix
+                            (let* ((files (if (and prefix (not (string-blank-p prefix)))
                                               (denote-sequence-get-all-files-with-prefix ,prefix)
                                             (denote-sequence-get-all-files)))
                                    (files-with-depth (if ,depth
