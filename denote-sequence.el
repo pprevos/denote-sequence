@@ -53,9 +53,6 @@
 
 ;;; Code:
 
-;; TODO 2025-01-08: Test whether the built-in hierarchy.el can be used
-;; to present the sequences in a nice way.  What do we need and how
-;; exactly do we use that library.
 (require 'denote)
 
 (defgroup denote-sequence ()
@@ -1238,6 +1235,79 @@ CHECK THE RESULTING SEQUENCES FOR DUPLICATES."
                 (new-sequence (denote-sequence-make-conversion old-sequence :is-complete-sequence)))
       (denote-rename-file file 'keep-current 'keep-current new-sequence 'keep-current 'keep-current)))
   (denote-update-dired-buffers))
+
+;;;; Display a hierarchy
+
+;;;###autoload
+(defun denote-sequence-view-hierarchy (&optional prefix depth)
+  "Show a hierachy of sequences.
+With optional PREFIX string, show only files whose sequence matches it.
+When called interactively, prompt for PREFIX, which is a file whose
+sequence is used.
+
+With optional DEPTH as a number, limit the list to files whose sequence
+is that many levels deep.  For example, 1=1=2 is three levels deep.
+When called interactively, prompt for the depth.
+
+In interactive use, PREFIX is the single universal argument, while DEPTH
+is the double universal argument.  In this case, PREFIX can be an empty
+string, which means to not use a prefix as a restriction."
+  (interactive
+   (let ((arg (prefix-numeric-value current-prefix-arg)))
+     (cond
+      ((= arg 16)
+       (list
+        (denote-sequence-prompt "Limit to files that extend SEQUENCE (empty for all)")
+        (denote-sequence-depth-prompt)))
+      ((= arg 4)
+       (list
+        (denote-sequence-prompt "Limit to files that extend SEQUENCE (empty for all)")))
+      (t
+       nil))))
+  (require 'hierarchy)
+  (if-let* ((files-with-prefix (if (and prefix (not (string-blank-p prefix)))
+                                   (denote-sequence-get-all-files-with-prefix prefix)
+                                 (denote-sequence-get-all-files)))
+            (files-with-depth (if depth
+                                  (denote-sequence-get-all-files-with-max-depth depth files-with-prefix)
+                                files-with-prefix))
+            ;; NOTE 2025-11-19: We need this to base all our files
+            ;; relative to it.  I was trying to work without it, but
+            ;; nothing yielded the desired results.
+            (phony-root (denote-format-file-name (car (denote-directories)) "00000000T000000" '("keyword") "title" ".txt" "0"))
+            (files (append (list phony-root) files-with-depth)))
+      (let* ((buffer (get-buffer-create "*denote-sequence-hierarchy*"))
+             (hierarchy (hierarchy-new))
+             (all-roots (seq-remove
+                         (lambda (file)
+                           (denote-sequence--infer-parent (denote-retrieve-filename-signature file)))
+                         (remove phony-root files)))
+             (children-fn (lambda (file)
+                            (condition-case data
+                                (if (string= file phony-root)
+                                    all-roots
+                                  (denote-sequence-get-relative (denote-retrieve-filename-signature file) 'children files))
+                              (error (message "Failed childern-fn with data: %s" data)))))
+             (label-button-fn (lambda (file indent)
+                                (condition-case data
+                                    (if (string= file phony-root)
+                                        (insert "")
+                                      (let* ((signature (denote-retrieve-filename-signature file))
+                                             (title (denote-retrieve-title-or-filename file (denote-filetype-heuristics file)))
+                                             (keywords (denote-retrieve-filename-keywords-as-list file))
+                                             (children (denote-sequence-get-relative signature 'children files)))
+                                        (if children
+                                            (insert (format "%s: %s (%s) [%s]" signature title (string-join keywords ", ") (length children)))
+                                          (insert (format "%s: %s (%s)" signature title (string-join keywords ", "))))))
+                                  (error (message "Failed label-button-fn with data: %s" data)))))
+             (label-action-fn (lambda (file &rest _)
+                                (unless (string= file phony-root)
+                                  (funcall denote-open-link-function file))))
+             (label-fn (hierarchy-labelfn-button label-button-fn label-action-fn)))
+        (hierarchy-add-trees hierarchy files nil children-fn nil :delay-children-processing)
+        (hierarchy-sort hierarchy #'denote-sequence--file-smaller-p)
+        (display-buffer (hierarchy-tree-display hierarchy label-fn buffer)))
+    (user-error "No sequences found")))
 
 (provide 'denote-sequence)
 ;;; denote-sequence.el ends here
