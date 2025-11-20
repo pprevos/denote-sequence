@@ -1081,6 +1081,20 @@ Use optional PREFIX and DEPTH to format the string accordingly."
      (t
       (format "*Denote sequences, %s*" time)))))
 
+(defun denote-sequence--get-interactive-for-prefix-and-depth ()
+  "Return interactive list of arguments for `denote-sequence-dired' and related."
+  (let ((arg (prefix-numeric-value current-prefix-arg)))
+     (cond
+      ((= arg 16)
+       (list
+        (denote-sequence-prompt "Limit to files that extend SEQUENCE (empty for all)")
+        (denote-sequence-depth-prompt)))
+      ((= arg 4)
+       (list
+        (denote-sequence-prompt "Limit to files that extend SEQUENCE (empty for all)")))
+      (t
+       nil))))
+
 ;;;###autoload
 (defun denote-sequence-dired (&optional prefix depth)
   "Produce a Dired listing of all sequence notes.
@@ -1092,18 +1106,7 @@ With optional DEPTH as a number, limit the list to files whose sequence
 is that many levels deep.  For example, 1=1=2 is three levels deep.
 
 For a more specialised case, see `denote-sequence-find-relatives-dired'."
-  (interactive
-   (let ((arg (prefix-numeric-value current-prefix-arg)))
-     (cond
-      ((= arg 16)
-       (list
-        (denote-sequence-prompt "Limit to files that extend SEQUENCE (empty for all)")
-        (denote-sequence-depth-prompt)))
-      ((= arg 4)
-       (list
-        (denote-sequence-prompt "Limit to files that extend SEQUENCE (empty for all)")))
-      (t
-       nil))))
+  (interactive (denote-sequence--get-interactive-for-prefix-and-depth))
   (pcase-let* ((relative-p (denote-has-single-denote-directory-p))
                (files-fn `(lambda ()
                             (let* ((files (if (and prefix (not (string-blank-p prefix)))
@@ -1385,18 +1388,7 @@ When called interactively, prompt for the depth.
 In interactive use, PREFIX is the single universal argument, while DEPTH
 is the double universal argument.  In this case, PREFIX can be an empty
 string, which means to not use a prefix as a restriction."
-  (interactive
-   (let ((arg (prefix-numeric-value current-prefix-arg)))
-     (cond
-      ((= arg 16)
-       (list
-        (denote-sequence-prompt "Limit to files that extend SEQUENCE (empty for all)")
-        (denote-sequence-depth-prompt)))
-      ((= arg 4)
-       (list
-        (denote-sequence-prompt "Limit to files that extend SEQUENCE (empty for all)")))
-      (t
-       nil))))
+  (interactive (denote-sequence--get-interactive-for-prefix-and-depth))
   (if-let* ((files-with-prefix (if (and prefix (not (string-blank-p prefix)))
                                    (denote-sequence-get-all-files-with-prefix prefix)
                                  (denote-sequence-get-all-files)))
