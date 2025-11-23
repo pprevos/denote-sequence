@@ -1266,25 +1266,24 @@ CHECK THE RESULTING SEQUENCES FOR DUPLICATES."
              (indent (if (eq depth 1)
                          ""
                        (make-string (* (- depth 1) denote-sequence-hierarchy-indentation) ? )))
+             (text (format "%s%s"
+                           (propertize indent
+                                       'cursor-sensor-functions
+                                       (list
+                                        (lambda (&rest _)
+                                          (re-search-forward "[[:alnum:]]" nil t)
+                                          (forward-char -1))))
+                           (propertize sequence 'denote-sequence-hierarchy-sequence-text t)))
              (beginning (point))
              (inhibit-read-only t))
+        (when title
+          (setq text (concat text " " title)))
+        (when keywords
+          (setq text (concat text " _" keywords)))
         (insert
-         (propertize
-          ;; FIXME 2025-11-19: Adjust this to account only for
-          ;; elements that are present.  Only the sequence is
-          ;; mandatory in this regard.
-          (format "%s%s %s _%s"
-                  (propertize indent
-                              'cursor-sensor-functions
-                              (list
-                               (lambda (&rest _)
-                                 (re-search-forward "[[:alnum:]]" nil t)
-                                 (forward-char -1))))
-                  (propertize sequence 'denote-sequence-hierarchy-sequence-text t)
-                  (propertize title 'denote-sequence-hierarchy-title-text t)
-                  (propertize keywords 'denote-sequence-hierarchy-keywords-text t))
-          'denote-sequence-hierarchy-level depth
-          'denote-sequence-hierarchy-file file))
+         (propertize text
+                     'denote-sequence-hierarchy-level depth
+                     'denote-sequence-hierarchy-file file))
         (insert "\n"))
     (error (message "Failed label-button-fn with data: %s" data))))
 
