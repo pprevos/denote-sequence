@@ -1289,9 +1289,8 @@ CHECK THE RESULTING SEQUENCES FOR DUPLICATES."
 
 (defun denote-sequence-hierarchy-get-level ()
   "Return the outline level at point."
-  (if-let* ((level (get-text-property (point) 'denote-sequence-hierarchy-level)))
-      level
-    (user-error "No outline level found at position `%s'" position)))
+  (or (get-text-property (point) 'denote-sequence-hierarchy-level)
+      (user-error "No outline level found at position `%s'" position)))
 
 (defun denote-sequence-hierarchy-find-file (position)
   "Find the file at POSITION in `denote-sequence-view-hierarchy' buffer.
