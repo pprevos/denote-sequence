@@ -576,7 +576,9 @@ Also see `denote-sequence-sort-files'."
 Also see `denote-sequence-sort-sequences'."
   (sort files-with-sequence #'denote-sequence--file-smaller-p))
 
-(defun denote-sequence--get-largest-by-order (sequences type)
+;; FIXME 2025-12-01: I made a mistake to not pass type here.  I am now
+;; ignoring it but it should actually be there.
+(defun denote-sequence--get-largest-by-order (sequences _type)
   "Sort SEQUENCES of TYPE to get largest in order, using `denote-sequence--pad'."
   (car (reverse (sort sequences #'denote-sequence--smaller-p))))
 
@@ -1349,15 +1351,19 @@ set the `revert-buffer-function'."
     (set-match-data (list beginning end))
     (point)))
 
-(defun denote-sequence--hierarchy-face-matcher-sequence (limit)
+;; FIXME 2025-12-01: `text-property-search-forward' does not have a
+;; concept of LIMIT like `re-search-forward'.  Maybe this approach of
+;; putting text properties as anchors and then searching for them is
+;; not a good idea.
+(defun denote-sequence--hierarchy-face-matcher-sequence (_limit)
   "Font lock matcher for sequences using LIMIT."
   (denote-sequence--hierarchy-face-matcher-subr 'denote-sequence-hierarchy-sequence-text))
 
-(defun denote-sequence--hierarchy-face-matcher-title (limit)
+(defun denote-sequence--hierarchy-face-matcher-title (_limit)
   "Font lock matcher for titles using LIMIT."
   (denote-sequence--hierarchy-face-matcher-subr 'denote-sequence-hierarchy-title-text))
 
-(defun denote-sequence--hierarchy-face-matcher-keywords (limit)
+(defun denote-sequence--hierarchy-face-matcher-keywords (_limit)
   "Font lock matcher for keywords using LIMIT."
   (denote-sequence--hierarchy-face-matcher-subr 'denote-sequence-hierarchy-keywords-text))
 
