@@ -554,22 +554,23 @@ means to pad the full length of the sequence."
          "=")
       (string-pad s 32 32 :pad-from-start))))
 
-(defun denote-sequence--smaller-p (sequence1 sequence2)
-  "Return non-nil if SEQUENCE1 is smaller than SEQUENCE2."
-  (string<
-   (denote-sequence--pad sequence1 'all)
-   (denote-sequence--pad sequence2 'all)))
-
 (defun denote-sequence-sort-sequences (sequences)
   "Sort SEQUENCES according to their sequence.
 Also see `denote-sequence-sort-files'."
-  (sort sequences #'denote-sequence--smaller-p))
+  (sort
+   sequences
+   (lambda (sequence1 sequence2)
+     (string<
+      (denote-sequence--pad sequence1 'all)
+      (denote-sequence--pad sequence2 'all)))))
 
 (defun denote-sequence--file-smaller-p (file1 file2)
   "Return non-nil if FILE1 has a smaller sequence than FILE2."
   (let ((sequence1 (denote-retrieve-filename-signature file1))
         (sequence2 (denote-retrieve-filename-signature file2)))
-    (denote-sequence--smaller-p sequence1 sequence2)))
+    (string<
+     (denote-sequence--pad sequence1 'all)
+     (denote-sequence--pad sequence2 'all))))
 
 (defun denote-sequence-sort-files (files-with-sequence)
   "Sort FILES-WITH-SEQUENCE according to their sequence.
