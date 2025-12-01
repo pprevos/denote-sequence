@@ -381,7 +381,6 @@ Do not actually try to create a new child, as that is the duty of
 depth given SEQUENCE."
   (pcase-let* ((`(,sequence . ,scheme) (denote-sequence-and-scheme-p sequence))
                (components (denote-sequence-split sequence))
-               (butlast (butlast components))
                (last-component (car (nreverse components)))
                (new-depth (cond
                            ((eq scheme 'numeric) "1")
@@ -734,8 +733,7 @@ returned by `denote-sequence-get-all-files'."
                            (denote-sequence-get-all-files-with-prefix prefix files)))))
     (pcase type
       ('all-parents
-       (let ((parent-files nil)
-             (butlast (butlast components))
+       (let ((butlast (butlast components))
              (found-files (denote-sequence-get-all-files files))
              (likely-parents nil))
          (while (>= (length butlast) 1)
@@ -816,7 +814,7 @@ completion candidates.  Else use `denote-sequence-get-all-files'."
                     (denote--completion-table 'file relative-files)
                     nil :require-match
                     nil 'denote-sequence-file-history)))
-      (expand-file-name input (denote-directory))
+      (expand-file-name input (car (denote-directories)))
     (error "There are no sequence notes in the `denote-directory'")))
 
 ;;;###autoload
@@ -947,11 +945,12 @@ FILES-WITH-SEQUENCES are siblings of SEQUENCE."
     (error "Cannot have a file path that satisfies `denote-sequence-file-p' while using sequence `%s'" sequence)))
 
 (defun denote-sequence-find-next-prev-sibling-subr (next-or-previous sequence relatives)
-  "Subroutine for `denote-sequence-find-next-sibling' and `denote-sequence-find-previous-sibling'.
-The NEXT-OR-PREVIOUS is the direction to move towards.  It is the symbol
-`next' or `previous'.  SEQUENCE is the one to find siblings for.
-RELATIVES is a list of files that are already known to pertain to
-SEQUENCE."
+  "Find next or previous sibling.
+Do the work for `denote-sequence-find-next-sibling' and
+`denote-sequence-find-previous-sibling'.  The NEXT-OR-PREVIOUS is the
+direction to move towards.  It is the symbol `next' or `previous'.
+SEQUENCE is the one to find siblings for.  RELATIVES is a list of files
+that are already known to pertain to SEQUENCE."
   (let ((relatives (or relatives (denote-sequence-get-relative sequence 'siblings))))
     (if-let* ((_ relatives)
               (next-in-line (denote-sequence--infer-sibling sequence next-or-previous))
@@ -1142,7 +1141,7 @@ Also see `denote-sequence-dired'."
                                         all-children
                                         children))))
   (if-let* ((sequence (denote-sequence-file-p buffer-file-name)))
-      (if-let* ((default-directory (denote-directory))
+      (if-let* ((default-directory (car (denote-directories)))
                 (relatives (ensure-list (denote-sequence-get-relative sequence type)))
                 (files-sorted (denote-sequence-sort-files relatives)))
           (dired (cons (format-message "*`%s' type relatives of `%s'" type sequence)
@@ -1155,7 +1154,7 @@ Also see `denote-sequence-dired'."
 The path is that of the special Org buffer (like `org-capture'), the
 file at point in a Dired buffer, or the variable `buffer-file-name'."
   (if (denote--file-type-org-extra-p)
-      denote-last-path-after-rename
+      denote-last-path
     (denote--rename-dired-file-or-current-file-or-prompt)))
 
 ;; TODO 2025-01-14: We need to have an operation that reparents
@@ -1251,7 +1250,7 @@ CHECK THE RESULTING SEQUENCES FOR DUPLICATES."
   :link '(url-link :tag "Denote Sequence homepage" "https://protesilaos.com/emacs/denote-sequence"))
 
 (defcustom denote-sequence-hierarchy-indentation 2
-  "Number of spaces to indent each level of depth in `denote-sequence-view-hierarchy'."
+  "Number of spaces to indent by depth in `denote-sequence-view-hierarchy'."
   :type 'natnum
   :package-version '(denote . "0.3.0")
   :group 'denote-sequence-hierarchy)
@@ -1283,7 +1282,6 @@ CHECK THE RESULTING SEQUENCES FOR DUPLICATES."
              (indent (if (eq depth 1)
                          ""
                        (make-string (* (- depth 1) denote-sequence-hierarchy-indentation) ? )))
-             (beginning (point))
              (inhibit-read-only t)
              (entry (denote-sequence--format-hierarchy-entry indent sequence title keywords)))
         (insert (propertize entry
@@ -1294,8 +1292,9 @@ CHECK THE RESULTING SEQUENCES FOR DUPLICATES."
 
 (defun denote-sequence-hierarchy-get-level ()
   "Return the outline level at point."
-  (or (get-text-property (point) 'denote-sequence-hierarchy-level)
-      (user-error "No outline level found at position `%s'" position)))
+  (let ((position (point)))
+    (or (get-text-property position 'denote-sequence-hierarchy-level)
+        (user-error "No outline level found at position `%s'" position))))
 
 (defun denote-sequence-hierarchy-find-file (position)
   "Find the file at POSITION in `denote-sequence-view-hierarchy' buffer.
@@ -1318,6 +1317,13 @@ set the `revert-buffer-function'."
                   (lambda (_ignore-auto _no-confirm)
                     (denote-sequence-view-hierarchy prefix depth))))
     buffer))
+
+(declare-function outline-cycle "outline" (&optional event))
+(declare-function outline-cycle-buffer "outline" (&optional level))
+(declare-function outline-forward-same-level "outline" (arg))
+(declare-function outline-backward-same-level "outline" (arg))
+(declare-function outline-next-visible-heading "outline" (arg))
+(declare-function outline-previous-visible-heading "outline" (arg))
 
 ;; TODO 2025-11-19: Review which keybindings we need to cover the
 ;; basic use-case.  I do not want to have a million options here.
