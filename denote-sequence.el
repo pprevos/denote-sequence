@@ -576,11 +576,16 @@ Also see `denote-sequence-sort-files'."
 Also see `denote-sequence-sort-sequences'."
   (sort files-with-sequence #'denote-sequence--file-smaller-p))
 
-;; FIXME 2025-12-01: I made a mistake to not pass type here.  I am now
-;; ignoring it but it should actually be there.
-(defun denote-sequence--get-largest-by-order (sequences _type)
+(defun denote-sequence--get-largest-by-order (sequences type)
   "Sort SEQUENCES of TYPE to get largest in order, using `denote-sequence--pad'."
-  (car (reverse (sort sequences #'denote-sequence--smaller-p))))
+  (car
+   (reverse
+    (sort
+     sequences
+     (lambda (sequence1 sequence2)
+       (string<
+        (denote-sequence--pad sequence1 type)
+        (denote-sequence--pad sequence2 type)))))))
 
 (defun denote-sequence--string-length-sans-delimiter (string)
   "Return length of STRING without the equals sign."
