@@ -1114,7 +1114,8 @@ is that many levels deep.  For example, 1=1=2 is three levels deep.
 
 For a more specialised case, see `denote-sequence-find-relatives-dired'."
   (interactive (denote-sequence--get-interactive-for-prefix-and-depth))
-  (let* ((relative-p (denote-has-single-denote-directory-p))
+  (let* ((roots (denote-directories))
+         (relative-p (null (cdr roots)))
          (files-fn (lambda ()
                      (let* ((files (if (and prefix (not (string-blank-p prefix)))
                                        (denote-sequence-get-all-files-with-prefix prefix)
@@ -1128,7 +1129,7 @@ For a more specialised case, see `denote-sequence-find-relatives-dired'."
                          files-sorted)))))
     (if-let* ((directory (if relative-p ; see comment in `denote-file-prompt'
                              (car (denote-directories))
-                           (denote-directories-get-common-root)))
+                           (denote-directories-get-common-root roots)))
               (files (funcall files-fn))
               (dired-name (denote-format-buffer-name
                            (format-message "prefix `%s'; depth `%s'" (or prefix "ALL") (or depth "ALL"))
