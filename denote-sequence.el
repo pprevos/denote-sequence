@@ -799,7 +799,7 @@ instead of the default `denote-sequence-annotate-types'."
     (intern
      (completing-read
       (format-prompt (or prompt-text "Select sequence type") default)
-      (denote--completion-table 'denote-sequence-type (or types denote-sequence-types))
+      (denote-get-completion-table (or types denote-sequence-types) '(category . denote-sequence-type))
       nil :require-match nil
       'denote-sequence-type-history default))))
 
@@ -819,7 +819,7 @@ completion candidates.  Else use `denote-sequence-get-all-files'."
             (prompt (format-prompt (or prompt-text "Select FILE with sequence") nil))
             (input (completing-read
                     prompt
-                    (denote--completion-table 'file relative-files)
+                    (denote-get-completion-table relative-files '(category . file))
                     nil :require-match
                     nil 'denote-sequence-file-history)))
       (expand-file-name input (car (denote-directories)))
