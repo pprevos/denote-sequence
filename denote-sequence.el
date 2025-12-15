@@ -859,26 +859,26 @@ With optional PROMPT-TEXT use it instead of a generic prompt.
 
 With optional FILES-WITH-SEQUENCES as a list of strings, use them as
 completion candidates.  Else use `denote-sequence-get-all-files'."
-  (if-let* ((roots (denote-directories))
-            (single-dir-p (null (cdr roots)))
-            ;; Some external program may use `default-directory' with the
-            ;; relative file paths of the completion candidates.
-            (default-directory (if single-dir-p
-                                   (car roots)
-                                 (denote-directories-get-common-root roots)))
-            (files (or files-with-sequences (denote-sequence-get-all-files)))
-            (relative-files (if single-dir-p
-                                (mapcar #'denote-get-file-name-relative-to-denote-directory files)
-                              files))
-            (prompt (format-prompt (or prompt-text "Select FILE with sequence") nil))
-            (input (completing-read
-                    prompt
-                    (apply 'denote-get-completion-table relative-files denote-sequence-file-prompt-extra-metadata)
-                    nil t nil 'denote-sequence-file-history)))
-      (if single-dir-p
-          (expand-file-name input default-directory)
-        input)
-    (error "There are no sequence notes in the `denote-directory'")))
+  (let* ((roots (denote-directories))
+         (single-dir-p (null (cdr roots)))
+         ;; Some external program may use `default-directory' with the
+         ;; relative file paths of the completion candidates.
+         (default-directory (if single-dir-p
+                                (car roots)
+                              (denote-directories-get-common-root roots))))
+    (if-let* ((files (or files-with-sequences (denote-sequence-get-all-files)))
+              (relative-files (if single-dir-p
+                                  (mapcar #'denote-get-file-name-relative-to-denote-directory files)
+                                files))
+              (prompt (format-prompt (or prompt-text "Select FILE with sequence") nil))
+              (input (completing-read
+                      prompt
+                      (apply 'denote-get-completion-table relative-files denote-sequence-file-prompt-extra-metadata)
+                      nil t nil 'denote-sequence-file-history)))
+        (if single-dir-p
+            (expand-file-name input default-directory)
+          input)
+      (error "There are no sequence notes in the `denote-directory'"))))
 
 ;;;###autoload
 (defun denote-sequence (type &optional file-with-sequence)
