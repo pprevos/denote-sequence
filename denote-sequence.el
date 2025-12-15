@@ -1171,8 +1171,8 @@ For a more specialised case, see `denote-sequence-find-relatives-dired'."
                        (if relative-p
                            (mapcar #'file-relative-name files-sorted)
                          files-sorted)))))
-    (if-let* ((directory (if relative-p ; see comment in `denote-file-prompt'
-                             (car (denote-directories))
+    (if-let* ((directory (if single-dir-p
+                             (car roots)
                            (denote-directories-get-common-root roots)))
               (files (funcall files-fn))
               (dired-name (denote-format-buffer-name
