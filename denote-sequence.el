@@ -800,8 +800,53 @@ instead of the default `denote-sequence-annotate-types'."
      (completing-read
       (format-prompt (or prompt-text "Select sequence type") default)
       (denote-get-completion-table (or types denote-sequence-types) '(category . denote-sequence-type))
-      nil :require-match nil
-      'denote-sequence-type-history default))))
+      nil t nil 'denote-sequence-type-history default))))
+
+(defun denote-sequence-file-prompt-affixate (files)
+  "Affixate FILES.
+Use the identifier as a prefix, the keywords as a suffix, and the title
+as the text of the candidate.
+
+Include in the text of the candidate the file extesion.  A group
+function can remove it, such as with `denote-file-prompt-group'."
+  (mapcar
+   (lambda (file)
+     (let ((sequence (denote-retrieve-filename-signature file)))
+       (list
+        file
+        (format "%s " (propertize sequence 'face 'completions-annotations))
+        (format " %s%s"
+                (if (eq completions-format 'one-column)
+                    (propertize " " 'display '(space :align-to 90))
+                  " ")
+                (propertize (or (denote-retrieve-filename-keywords file) "") 'face 'completions-annotations)))))
+   files))
+
+(defun denote-sequence-file-prompt-group (file transform)
+  "Retun group of FILE if TRANSFORM is non-nil, per `completion-metadata'."
+  (cond
+   (transform
+    (denote-retrieve-filename-title file))
+   ((string-match-p (regexp-opt denote-encryption-file-extensions) file)
+    "Encrypted")
+   ((string-match-p (regexp-opt (denote-file-type-extensions)) file)
+    "Notes")
+   ((string-match-p "\\.\\(pdf\\|epub\\)" file)
+    "Documents")
+   (t "Other files")))
+
+(defvar denote-sequence-file-prompt-extra-metadata
+  (list
+   ;; NOTE 2025-12-15: If we use the `file' category, then we are
+   ;; subject to the `completion-category-overrides'.  This is a
+   ;; problem because the user will want to, for example, sort
+   ;; directories before files, but then we cannot have our sort here.
+   (cons 'category 'file)
+   (cons 'group-function #'denote-sequence-file-prompt-group)
+   (cons 'affixation-function #'denote-sequence-file-prompt-affixate)
+   (cons 'display-sort-function #'denote-sequence-sort-files))
+  "Extra `completion-metadata' for the `denote-file-prompt'.
+This is in addition to the completion category, which is constant.")
 
 (defvar denote-sequence-file-history nil
   "Minibuffer history for `denote-sequence-file-prompt'.")
@@ -819,9 +864,8 @@ completion candidates.  Else use `denote-sequence-get-all-files'."
             (prompt (format-prompt (or prompt-text "Select FILE with sequence") nil))
             (input (completing-read
                     prompt
-                    (denote-get-completion-table relative-files '(category . file))
-                    nil :require-match
-                    nil 'denote-sequence-file-history)))
+                    (apply 'denote-get-completion-table relative-files denote-sequence-file-prompt-extra-metadata)
+                    nil t nil 'denote-sequence-file-history)))
       (expand-file-name input (car (denote-directories)))
     (error "There are no sequence notes in the `denote-directory'")))
 
@@ -1052,7 +1096,7 @@ is ignored."
   (completing-read
    (format-prompt (or prompt-text "Select an existing sequence (empty for all)") nil)
    (or sequences (denote-sequence-get-all-sequences))
-   #'denote-sequence-p :require-match nil 'denote-sequence-history))
+   #'denote-sequence-p t nil 'denote-sequence-history))
 
 (defvar denote-sequence-depth-history nil
   "Minibuffer history of `denote-sequence-depth-prompt'.")
