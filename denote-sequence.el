@@ -841,7 +841,7 @@ function can remove it, such as with `denote-file-prompt-group'."
    ;; subject to the `completion-category-overrides'.  This is a
    ;; problem because the user will want to, for example, sort
    ;; directories before files, but then we cannot have our sort here.
-   (cons 'category 'file)
+   (cons 'category 'denote-file)
    (cons 'group-function #'denote-sequence-file-prompt-group)
    (cons 'affixation-function #'denote-sequence-file-prompt-affixate)
    (cons 'display-sort-function #'denote-sequence-sort-files))
